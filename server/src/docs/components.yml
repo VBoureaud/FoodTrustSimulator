@@ -1,0 +1,182 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        profile:
+          type: string
+        experience:
+          type: number
+        transactions:
+          type: number
+        pocket:
+          type: number
+        tokenBuildable:
+          type: array
+          items:
+            type: array
+        tokenNeeded:
+          type: array
+          items:
+            type: array
+        location:
+          type: object
+          properties:
+            country:
+              type: string
+            name:
+              type: string
+            lat:
+              type: string
+            lng:
+              type: string
+      example:
+        id: 5ebac534954b54139806c112
+        name: "Xeor554"
+        address: "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb"
+        profile: "0"
+        
+    City:
+      type: object
+      properties:
+        id:
+          type: string
+        country:
+          type: string
+        name:
+          type: string
+        lat:
+          type: string
+        lng:
+          type: string
+
+    History:
+      type: object
+      properties:
+        name:
+          type: string
+        details:
+          type: array
+          items:
+            userName:
+              type: string
+            userAddress:
+              type: string
+            country:
+              type: string
+            name:
+              type: string
+            lat:
+              type: string
+            lng:
+              type: string
+
+    MetaData:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+        properties:
+          type: object
+          properties:
+            owner:
+              type: string
+            ownerHistory:
+              type: array
+            nftToken:
+              type: string
+            offerBuy:
+              type: array
+            parents:
+              type: array
+      example:
+        id: 5ebac534954b54139806c112
+        name: 'rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb1646947693887000001'
+        description: 'MetaData for URI type 000001'
+        image: '000001'
+        properties:
+          owner: 'rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb'
+          ownerHistory: [ 'rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb' ]
+          nftToken: '0008000008AB50D2C6251686E42480AF556F5FEF110C0CCE0000099B00000000'
+          offerBuy: []
+          parents: []
+
+    Users:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+    Cities:
+      type: array
+      items:
+        $ref: '#/components/schemas/City'
+    MetaDatas:
+      type: array
+      items:
+        $ref: '#/components/schemas/MetaData'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+
+  responses:
+    DuplicateUser:
+      description: User already created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            message: User already created
+    DuplicateMetaData:
+      description: MetaData already created
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            message: MetaData already created
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 401
+            message: Please authenticate
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 403
+            message: Forbidden
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 404
+            message: Not found
