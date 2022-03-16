@@ -53,7 +53,7 @@ const ResponsiveAppBar = (props: ResponsiveAppBar) => {
               component="div"
               sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
             >
-              <img src={logo} alt={logo} width='40' />
+              <img src={logo} alt={logo} width='40' height='40' />
             </Typography>
           </Link>
 
@@ -102,7 +102,7 @@ const ResponsiveAppBar = (props: ResponsiveAppBar) => {
               sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}
             >
               <Link to='/'>
-                <img src={logo} alt={logo} width='50' />
+                <img src={logo} alt={logo} width='50' height='50' />
               </Link>
             </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>

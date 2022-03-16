@@ -78,7 +78,7 @@ const LoginScene: React.FC<Props> = () => {
                 required
                 fullWidth
                 id="account"
-                label="Account Address"
+                label="XRPL Address"
                 name="account"
                 autoComplete="account"
                 variant="filled"
@@ -119,7 +119,7 @@ const LoginScene: React.FC<Props> = () => {
               <Typography sx={{ color: 'black', mb: 1 }} variant="h3">Nice to meet you</Typography>
               <a target="_blank" href="https://xrpl.org/xrp-testnet-faucet.html">
                 <Alert sx={{ background: '#3c5e82' }} severity="info">
-                  Generate your <span style={{ fontWeight: 'bold' }}>NFT-Devnet credentials</span> here
+                  Generate your <strong>XRPL Address</strong> on <strong>NFT-Devnet</strong> here
                 </Alert>
               </a>
               {stateUser.errorSignUpMsg 
@@ -132,18 +132,18 @@ const LoginScene: React.FC<Props> = () => {
                 required
                 fullWidth
                 id="username"
-                label="Username"
+                label="Name"
                 name="username"
                 autoComplete="Username"
                 variant="filled"
               />
               <TextField
-                sx={{ background: "#222" }}
+                sx={{ mt: 0, background: "#222" }}
                 margin="normal"
                 required
                 fullWidth
                 id="account"
-                label="Account Address"
+                label="XRPL Address"
                 name="account"
                 autoComplete="account"
                 variant="filled"

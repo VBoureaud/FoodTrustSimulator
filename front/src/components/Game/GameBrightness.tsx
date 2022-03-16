@@ -4,6 +4,7 @@ import p5 from 'p5';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import background from "@assets/images/backgroundSmall.jpg";
 
 type objCollide = {
     x: number;
@@ -69,7 +70,8 @@ const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => 
 
         function preload() {
           // load the original image
-          img = p.loadImage("./assets/images/backgroundSmall.jpg");  
+          const imgtoload = process.env.NODE_ENV === "development" ? background : 'https://foodtrust.boureaud.com/assets/game/backgroundSmall.jpg';
+          img = p.loadImage(imgtoload);
         }
 
         p.setup = () => {

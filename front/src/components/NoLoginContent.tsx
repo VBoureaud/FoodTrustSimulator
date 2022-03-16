@@ -1,12 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import logo from '@assets/images/logo.png';
+import logo from "@assets/images/logo.png";
 
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import AnchorLink from "react-anchor-link-smooth-scroll";
 
 const NoLoginContent = () => (
   <React.Fragment>  
@@ -22,6 +24,7 @@ const NoLoginContent = () => (
         display: 'flex',
         alignItems: 'center',
         flexDirection: 'column',
+        position: 'relative',
       }}>
         <Box>
           <img src={logo} alt={logo} width='350' />
@@ -51,9 +54,13 @@ const NoLoginContent = () => (
           }} color="primary" variant="contained">ENTER</Button>
         </Link>
       </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 20 }}>
+        <AnchorLink href='#more'><ArrowDownwardIcon sx={{ fontSize: '45px' }} /></AnchorLink>
+      </Box>
     </Container>
     <div style={{ background: 'white', borderTop: '5px solid #003043' }}>
       <Container 
+        id="more"
         sx={{
           width: 1,
           //background: '#003043',
@@ -61,22 +68,41 @@ const NoLoginContent = () => (
           mb: 3,
         }}>
         <Paper sx={{ padding: 10, background: '#003043' }}>
-          <Typography variant='h3'>What is that?</Typography>
-          <Typography>
-            Sunt fugiat in labore ut in officia incididunt duis anim eiusmod cillum nisi velit mollit fugiat tempor eu qui eu reprehenderit cillum nostrud sed esse sint quis pariatur voluptate aliqua id nisi fugiat consectetur aute adipisicing in ullamco officia velit in dolor dolor irure est labore sunt anim aliquip aliqua ullamco laboris consectetur amet nulla minim officia veniam est ea incididunt sunt proident officia laborum proident adipisicing laboris occaecat ullamco occaecat dolor reprehenderit eiusmod qui excepteur pariatur pariatur et ad consequat cupidatat dolore mollit aute do enim in enim ex irure elit dolore velit ut ex labore tempor magna consectetur reprehenderit dolor consequat est quis sunt in deserunt eu tempor cillum non eiusmod fugiat enim in eu esse dolore labore mollit nulla occaecat consequat dolore id ut magna ut est anim ad culpa exercitation dolor in commodo proident ut sint fugiat eu dolore fugiat dolore fugiat quis voluptate in duis qui proident velit dolor magna occaecat ut laboris duis eiusmod elit officia sint mollit tempor quis velit pariatur ut voluptate aute fugiat aute ex.
+          <Typography sx={{ mb: 2 }} variant='h3'>What is Food Trust Simulator?</Typography>
+          <Typography sx={{ mb: 2 }}>
+            A project developed during XRPL Hackathon, which attempts to illustrate the interactions around the food sphere in a blockchain ecosystem proposed by XRPL.
           </Typography>
+          <Typography>
+            It works as a game where everyone with an XRP Ledger account can play on the NFT-Devnet. The game offers possibilities to mint nftTokens who refer to unique ingredients. Then you can trade with others on the plateform. The main functionality lies in the traceability of ingredients during exchanges, thanks to the management of URIs implemented according to EIP-1155.</Typography>
         </Paper>
         <Paper sx={{ ml: 'auto', mt: 2, padding: 10, background: '#147066' }}>
-          <Typography variant='h3'>And that?</Typography>
+          <Typography sx={{ mb: 2 }} variant='h3'>How does it work?</Typography>
           <Typography>
-            Sunt fugiat in labore ut in officia incididunt duis anim eiusmod cillum nisi velit mollit fugiat tempor eu qui eu reprehenderit cillum nostrud sed esse sint quis pariatur voluptate aliqua id nisi fugiat consectetur aute adipisicing in ullamco officia velit in dolor dolor irure est labore sunt anim aliquip aliqua ullamco laboris consectetur amet nulla minim officia veniam est ea incididunt sunt proident officia laborum proident adipisicing laboris occaecat ullamco occaecat dolor reprehenderit eiusmod qui excepteur pariatur pariatur et ad consequat cupidatat dolore mollit aute do enim in enim ex irure elit dolore velit ut ex labore tempor magna consectetur reprehenderit dolor consequat est quis sunt in deserunt eu tempor cillum non eiusmod fugiat enim in eu esse dolore labore mollit nulla occaecat consequat dolore id ut magna ut est anim ad culpa exercitation dolor in commodo proident ut sint fugiat eu dolore fugiat dolore fugiat quis voluptate in duis qui proident velit dolor magna occaecat ut laboris duis eiusmod elit officia sint mollit tempor quis velit pariatur ut voluptate aute fugiat aute ex.
+            Register or Sign in to FoodTrust Simulator with an valide XRPL address on NFT-Devnet.<br />
+            Then choose a profile and start playing. Currently, Profiles are not included in the game engine, so the difference is only in the skin.<br />
+            DashBoard page offer useful informations coming from XRPL and the Game server.<br />
+            Play to win some NFTs and experiences, but be careful, your profile has a collection limit. Check your collection on the Collection Page.<br />
+            You always have a current Quest todo. If you succeed, you level up ! For that you need to find NFTs from other account and trade with them.<br /><br />
+            How scoring works: <br />
+              - Play and win a Token: 100<br />
+              - Win a Quest: 900<br />
+              - Buy a Token: 500<br />
+              - Buy a Token to a small level account: 700<br />
+            Calcul Level: a Pokemon Like logarithm function. <br /><br />
+            On your profile page, find a summary of your statistics and Badges earned.<br />
+            Have fun ! :)
           </Typography>
         </Paper>
         <Paper sx={{ m: 'auto', mt: 2, padding: 10, background: '#703b14' }}>
-          <Typography variant='h3'>And this?</Typography>
-          <Typography>
-            Sunt fugiat in labore ut in officia incididunt duis anim eiusmod cillum nisi velit mollit fugiat tempor eu qui eu reprehenderit cillum nostrud sed esse sint quis pariatur voluptate aliqua id nisi fugiat consectetur aute adipisicing in ullamco officia velit in dolor dolor irure est labore sunt anim aliquip aliqua ullamco laboris consectetur amet nulla minim officia veniam est ea incididunt sunt proident officia laborum proident adipisicing laboris occaecat ullamco occaecat dolor reprehenderit eiusmod qui excepteur pariatur pariatur et ad consequat cupidatat dolore mollit aute do enim in enim ex irure elit dolore velit ut ex labore tempor magna consectetur reprehenderit dolor consequat est quis sunt in deserunt eu tempor cillum non eiusmod fugiat enim in eu esse dolore labore mollit nulla occaecat consequat dolore id ut magna ut est anim ad culpa exercitation dolor in commodo proident ut sint fugiat eu dolore fugiat dolore fugiat quis voluptate in duis qui proident velit dolor magna occaecat ut laboris duis eiusmod elit officia sint mollit tempor quis velit pariatur ut voluptate aute fugiat aute ex.
-          </Typography>
+          <Typography sx={{ mb: 2 }} variant='h3'>Preview</Typography>
+          <iframe src='https://www.youtube.com/embed/K7XOki5DEqE'
+                  frameBorder='0'
+                  allow='autoplay; encrypted-media'
+                  allowFullScreen
+                  title='Food Trust Simulator - XRPL Hackathon'
+                  width='100%'
+                  height='500px'
+          />
         </Paper>
       </Container>
     </div>

@@ -5,6 +5,7 @@ export const config = {
     process.env.NODE_ENV === "development" ? "http://localhost:3002/v1" : "https://fdtrsmltpoj.herokuapp.com/v1",
   xrpURL: 'http://xls20-sandbox.rippletest.net:51234',
   xrpWs: 'wss://xls20-sandbox.rippletest.net:51233',
+  version: '1.0.1',
 };
 
 export const navBarTabs = [

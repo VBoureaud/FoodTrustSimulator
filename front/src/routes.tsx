@@ -13,7 +13,7 @@ import ProfileScene from '@scenes/ProfileScene';
 import ActivityScene from '@scenes/ActivityScene';
 import CollectionScene from '@scenes/CollectionScene';
 import MarketScene from '@scenes/MarketScene';
-import NotFound from '@components/NotFound';
+import NotFoundScene from '@scenes/NotFoundScene';
 
 const mdTheme = createTheme(theme);
 
@@ -30,7 +30,7 @@ const Routes = () => (
         <Route exact path='/collection/:id' component={CollectionScene} />
         <Route exact path='/market' component={MarketScene} />
         <Route exact path='/nft/:id' component={NftScene} />
-        <Route component={NotFound} />
+        <Route component={NotFoundScene} />
       </Switch>
     </ThemeProvider>
   </ConnectedRouter>

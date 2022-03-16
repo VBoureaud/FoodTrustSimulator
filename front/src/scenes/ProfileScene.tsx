@@ -31,7 +31,6 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
 
 type ProfileProps = {
@@ -98,7 +97,7 @@ const ProfileScene: React.FC<Props> = () => {
   const doProgress = (experience: number) => {
     const next = calculNextLevel(experience);
     const prev = calculPrevLevel(experience);
-    const total = (100 * (experience - prev)) / next;
+    const total = (100 * (experience - prev)) / (next - prev);
     return total;
   }
 
