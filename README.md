@@ -9,8 +9,8 @@ It works as a game where everyone with an XRPLedger account can play on the NFT-
 
 ## Table of Contents
 1. [Dependencies](#dependencies)
-2. [How does it work ?](#how-does-it-work-?)
-3. [Installation & launch](#installation-&-launch)
+2. [How does it work](#how-does-it-work)
+3. [Installation and launch](#installation-and-launch)
 4. [Documentation](#documentation)
 5. [Tests](#test)
 6. [Demo](#demo)
@@ -33,7 +33,7 @@ Before running FoodTrust Simulator the following dependencies need to be install
 | MongoDB      | 5+      |
 
 
-### How does it work ?
+### How does it work
 
 Use your XRPL Account on the web application in pair with game server.
 Both communicate with XRPLedger, with a WebSocket from the front and JSON-RPC requests from the server, to manage the account and maintain consistency.
@@ -51,7 +51,7 @@ rNCFjv8Ek5oDrNiMJ3pw6eLLFtMjZLJnf2 1647343480246 000005
 On XRPL, see how NFT works: [official XLS-20d Non-Fungible Token documentation](https://github.com/XRPLF/XRPL-Standards/discussions/46).
 On Game Server, URI metaData is implemented by following [ERC-1155 Metadata](https://eips.ethereum.org/EIPS/eip-1155).
 
-### Installation & launch
+### Installation and launch
 
 ```bash
 $ cd front
