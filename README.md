@@ -104,6 +104,11 @@ Still a lot of ideas that I would like to implement:
 | Deadline for offers |
 | New and more mini-games |
 | Dont scroll back when you click on an User profil from Market Page and come back |
+| More details for history token |
+| Display users name wherever address is only displayed |
+| Calcul from XRPL cost for each transactions |
+| Integrate XUMM authentication |
+| Merge two NFTs into a new one |
 
 ### Known issues
 To be corrected in the next version. 
@@ -112,6 +117,8 @@ To be corrected in the next version.
 |--------------|
 | Sign up with an account that already has an nfts collection will break the count  |
 | Leaving the website while creating a new NFT may lose the URI on game server.  |
+| Catch Timeout from XRPL |
+| Some elements are not yet responsive |
 
 Find an issue ? Contact me at valentin@boureaud.com
 
