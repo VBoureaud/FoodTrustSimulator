@@ -45,7 +45,7 @@ export const getAll = (data: GetAllUsersPayload) => {
   if (data.searchType) {
     filter = `&${data.searchType}=${data.searchValue ? data.searchValue : ''}`;
   }
-  const url = apiServer.getAll.url + '?sortBy=experience:asc' + filter;
+  const url = apiServer.getAll.url + '?sortBy=experience:asc&limit=100' + filter;
   return buildRequest(
     url,
     apiServer.getAll.method,
