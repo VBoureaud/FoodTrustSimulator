@@ -81,7 +81,7 @@ const LocationFieldSet : React.FunctionComponent<LocationFieldsetProps> = (props
         setOpen(false);
       }}
       filterOptions={(x) => x}//To search as you type
-      getOptionLabel={(option) => option.index + ' ' + option.name + ' (' + option.country + ')'}
+      getOptionLabel={(option: City) => option.index + ' ' + option.name + ' (' + option.country + ')'}
       id="autocomplete-location"
       options={options}
       loading={loading}

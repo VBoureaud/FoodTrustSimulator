@@ -150,7 +150,7 @@ const ProfileScene: React.FC<Props> = () => {
 
             <Box sx={{ mt: 5, alignItems: 'center', display: 'flex' }}>
               <Typography>Collection:</Typography>
-              <Typography sx={{ ml: 1 }} variant='h4'>{stateAccount.nfts.length}</Typography>
+              <Typography sx={{ ml: 1 }} variant='h4'>{stateAccount.nfts && stateAccount.nfts.length}</Typography>
             </Box>
 
             <Box sx={{ mt: 5, alignItems: 'center', display: 'flex' }}>

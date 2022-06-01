@@ -180,8 +180,8 @@ const NftScene: React.FC<Props> = (props) => {
   const handleCancelOffer = (offers: Offers[]) => {
     const ownerOffer = offers.filter((elt: Offers) => elt.owner == stateAccount.address);
     if (!ownerOffer.length) return false; // not be possible
-    if (stateNft.buyOffers == offers) setCancelBuyOfferIndex(ownerOffer[0].index);
-    else setCancelSellOfferIndex(ownerOffer[0].index);
+    if (stateNft.buyOffers == offers) setCancelBuyOfferIndex(ownerOffer[0].nft_offer_index);
+    else setCancelSellOfferIndex(ownerOffer[0].nft_offer_index);
   }
 
   // FormDialog
@@ -227,7 +227,6 @@ const NftScene: React.FC<Props> = (props) => {
       // reload tokens offers
       dispatchGetOffers({ tokenId: props.match.params.id });
     } catch (error) {
-      //console.log({ error });
       return false;
     }
     return true;
@@ -257,8 +256,8 @@ const NftScene: React.FC<Props> = (props) => {
     try {
       const isOfferBuy = offerBuyIndex ? true : false;
       const offerIndex = offerBuyIndex ? offerBuyIndex : offerSellIndex;
-      const offerBuyAddress = stateNft.buyOffers ? stateNft.buyOffers.filter(e => e.index == offerBuyIndex) : [];
-      if (isOfferBuy && !offerBuyIndex.length) {
+      const offerBuyAddress = stateNft.buyOffers ? stateNft.buyOffers.filter(e => e.nft_offer_index == offerBuyIndex) : [];
+      if (isOfferBuy && !offerBuyAddress.length) {
         throw new Error("Coherence Fail");
       }
  
@@ -286,6 +285,7 @@ const NftScene: React.FC<Props> = (props) => {
       }
 
     } catch (error) {
+      //console.log(error);
       return false;
     }
     return true;
@@ -295,6 +295,7 @@ const NftScene: React.FC<Props> = (props) => {
       const res = await burnToken(props.match.params.id, secret);
       if (!res) throw new Error("Request Fail");
     } catch (error) {
+      //console.log(error);
       return false;
     }
     return true;
@@ -309,12 +310,12 @@ const NftScene: React.FC<Props> = (props) => {
     const userTokens = stateAccount.nfts ? stateAccount.nfts : [];
     const remoteTokens = stateAccount.remote_nfts ? stateAccount.remote_nfts : [];
     for (let i = 0; i < userTokens.length; i++)
-      if (userTokens[i].TokenID == tokenID) {
+      if (userTokens[i].NFTokenID == tokenID) {
         setIsRemoteToken(false);
         return userTokens[i];
       }
     for (let i = 0; i < remoteTokens.length; i++)
-      if (remoteTokens[i].TokenID == tokenID) {
+      if (remoteTokens[i].NFTokenID == tokenID) {
         setIsRemoteToken(true);
         return remoteTokens[i];
       }
@@ -433,7 +434,7 @@ const NftScene: React.FC<Props> = (props) => {
                   {tokenInfo
                     && <Box>
                       <Typography variant="h6"><span style={{ fontSize: '16px' }}>Transferable:</span> {tokenInfo.Flags == 8 ? 'True' : 'False'}</Typography>
-                      <Typography sx={{ fontSize: '15px' }} variant="h6"><span style={{ fontSize: '16px' }}>TokenID:</span> {tokenInfo.TokenID}</Typography>
+                      <Typography sx={{ fontSize: '15px' }} variant="h6"><span style={{ fontSize: '16px' }}>TokenID:</span> {tokenInfo.NFTokenID}</Typography>
                     </Box>}
                 </Box>
               </Paper>

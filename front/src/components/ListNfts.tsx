@@ -40,7 +40,7 @@ const ListNfts : React.FunctionComponent<ListNftsProps> = (props) => {
 	return (
 		<List sx={{ maxHeight: '70vh', overflowX: 'hidden', overflowY: 'auto' }}>
 			{props.nfts && props.nfts.map((elt, index) => 
-				<Link key={index} to={ '/nft/' + elt.TokenID }>
+				<Link key={index} to={ '/nft/' + elt.NFTokenID }>
 				    <ListItem sx={{ m: 1, ":hover": { bgcolor: '#393939' }, bgcolor: 'background.paper' }}>
 				    	<ListItemAvatar sx={{ minWidth: '30px' }}>
 				      		{index}
@@ -50,7 +50,7 @@ const ListNfts : React.FunctionComponent<ListNftsProps> = (props) => {
 					      	{props.uris && <Box 
 					      		sx={{ m: 'auto' }}
 					      		className={"nftTokenMin minType" 
-					      			+ getTypeFromToken(elt.TokenID, props.uris)}
+					      			+ getTypeFromToken(elt.NFTokenID, props.uris)}
 							></Box>}
 							{!props.uris && <ParkIcon sx={{ color: 'black' }}/>}
 					      </Avatar>
@@ -58,17 +58,17 @@ const ListNfts : React.FunctionComponent<ListNftsProps> = (props) => {
 					    {props.uris 
 					    	&& <ListItemText 
 					    			primary={'Created:' 
-					    				+ getDateFromToken(elt.TokenID, props.uris) 
+					    				+ getDateFromToken(elt.NFTokenID, props.uris) 
 					    				+ ' by ' 
-					    				+ (getAddrFromToken(elt.TokenID, props.uris) == props.address ? 'you' : getAddrFromToken(elt.TokenID, props.uris))}
-					    			secondary={'Id:' + elt.TokenID}
+					    				+ (getAddrFromToken(elt.NFTokenID, props.uris) == props.address ? 'you' : getAddrFromToken(elt.NFTokenID, props.uris))}
+					    			secondary={'Id:' + elt.NFTokenID}
 					    		/>}
-					    {!props.uris && <ListItemText primary={'URI:' + elt.URI} secondary={'Id:' + elt.TokenID} />}
+					    {!props.uris && <ListItemText primary={'URI:' + elt.URI} secondary={'Id:' + elt.NFTokenID} />}
 					    
-					    {props.onDelete && <ListItemButton onClick={() => props.onDelete(elt.TokenID)} sx={{ maxWidth: '55px', mr: 2 }}>
+					    {props.onDelete && <ListItemButton onClick={() => props.onDelete(elt.NFTokenID)} sx={{ maxWidth: '55px', mr: 2 }}>
 					      <RemoveCircleOutlineIcon sx={{ color: '#424242' }}/>
 					    </ListItemButton>}
-					    {props.actionText && <ListItemButton onClick={() => props.onAction(elt.TokenID)} sx={{ background: 'rgba(255, 255, 255, 0.08)', maxWidth: '90px', mr: 2 }}>
+					    {props.actionText && <ListItemButton onClick={() => props.onAction(elt.NFTokenID)} sx={{ background: 'rgba(255, 255, 255, 0.08)', maxWidth: '90px', mr: 2 }}>
 					    	{props.actionText}  
 					    </ListItemButton>}
 				  	</ListItem>

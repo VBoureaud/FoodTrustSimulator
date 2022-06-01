@@ -1,11 +1,12 @@
 import { GetAccountPayload } from "../types/AccountTypes";
 import { config } from "@config";
 
+
 // WS Call
 if (typeof module !== "undefined") var xrpl = require('xrpl')
 
 export const getTokensXRPL = async (data: GetAccountPayload) => {
-	const client = new xrpl.Client(config.xrpWs);
+	const client = new xrpl.Client(config.xrpWss);
 	await client.connect()
 
 	const nfts = await client.request({
@@ -18,7 +19,7 @@ export const getTokensXRPL = async (data: GetAccountPayload) => {
 }
 
 export const accountInfoXRPL = async (data: GetAccountPayload) => {
-	const client = new xrpl.Client(config.xrpWs);
+	const client = new xrpl.Client(config.xrpWss);
 	await client.connect()
 
 	const response = await client.request({
@@ -33,7 +34,7 @@ export const accountInfoXRPL = async (data: GetAccountPayload) => {
 
 export const mintToken = async (tokenUrl: string, secret: string) => {
 	const wallet = xrpl.Wallet.fromSeed(secret);
-	const client = new xrpl.Client(config.xrpWs);
+	const client = new xrpl.Client(config.xrpWss);
 	await client.connect();
 	
 	const transactionBlob = {
@@ -44,7 +45,6 @@ export const mintToken = async (tokenUrl: string, secret: string) => {
 		TokenTaxon: 0 //Required, but if no use, set to zero.
 	};
 	const tx = await client.submitAndWait(transactionBlob, { wallet });
-
 	if (!tx || tx.result.meta.TransactionResult != 'tesSUCCESS') {
 		client.disconnect();
 		return false;
@@ -60,19 +60,20 @@ export const mintToken = async (tokenUrl: string, secret: string) => {
 	if (!nfts || !nfts.result || !nfts.result.account_nfts)
 		return false;
 
-	const tokenId = nfts.result.account_nfts[nfts.result.account_nfts.length - 1].TokenID;
+	const tokenId = nfts.result.account_nfts[nfts.result.account_nfts.length - 1].NFTokenID;
 	return tokenId;
 }
 
 export const burnToken = async (tokenId: string, secret: string) => {
   const wallet = xrpl.Wallet.fromSeed(secret);
-  const client = new xrpl.Client(config.xrpWs);
+  const client = new xrpl.Client(config.xrpWss);
   await client.connect();
 
   const transactionBlob = {
       "TransactionType": "NFTokenBurn",
       "Account": wallet.classicAddress,
-      "TokenID": tokenId
+      // soon will be "NFTokenID": tokenId,
+      "TokenID": tokenId,
   };
 
   const tx = await client.submitAndWait(transactionBlob, { wallet });
@@ -82,13 +83,13 @@ export const burnToken = async (tokenId: string, secret: string) => {
 
 export const createSellOffer = async (amount: string, tokenId: string, secret: string) => {
 	const wallet = xrpl.Wallet.fromSeed(secret)
-	const client = new xrpl.Client(config.xrpWs)
+	const client = new xrpl.Client(config.xrpWss)
 	await client.connect()
 
   const transactionBlob = {
   	"TransactionType": "NFTokenCreateOffer",
   	"Account": wallet.classicAddress,
-  	"TokenID": tokenId,
+  	"TokenID": tokenId,//NFTokenID soon
   	"Amount": amount,
   	"Flags": 1
   };
@@ -101,16 +102,16 @@ export const createSellOffer = async (amount: string, tokenId: string, secret: s
 
 export const createBuyOffer = async (owner: string, amount: string, tokenId: string, secret: string) => {
 	const wallet = xrpl.Wallet.fromSeed(secret)
-	const client = new xrpl.Client(config.xrpWs)
+	const client = new xrpl.Client(config.xrpWss)
 	await client.connect()
 
   const transactionBlob = {
-      	"TransactionType": "NFTokenCreateOffer",
-      	"Account": wallet.classicAddress,
-      	"Owner": owner,
-      	"TokenID": tokenId,
-      	"Amount": amount,
-      	"Flags": 0
+		"TransactionType": "NFTokenCreateOffer",
+		"Account": wallet.classicAddress,
+		"Owner": owner,
+		"TokenID": tokenId,//NFTokenID soon
+		"Amount": amount,
+		"Flags": 0
   }
 
   const tx = await client.submitAndWait(transactionBlob,{wallet})
@@ -121,14 +122,14 @@ export const createBuyOffer = async (owner: string, amount: string, tokenId: str
 
 // Get Buy & Sell offers
 export const getOffers = async (tokenId: string) => {
-	const client = new xrpl.Client(config.xrpWs);
+	const client = new xrpl.Client(config.xrpWss);
 	await client.connect();
   
   let nftSellOffers = null;
   try {
     nftSellOffers = await client.request({
 			method: "nft_sell_offers",
-			tokenid: tokenId
+			nft_id: tokenId
 		});
 
 		if (nftSellOffers && nftSellOffers.result)
@@ -140,7 +141,7 @@ export const getOffers = async (tokenId: string) => {
   try {
     nftBuyOffers = await client.request({
 		  method: "nft_buy_offers",
-  		tokenid: tokenId
+  		nft_id: tokenId
   	});
   	
   	if (nftBuyOffers && nftBuyOffers.result)
@@ -158,7 +159,7 @@ export const getOffers = async (tokenId: string) => {
 
 export const cancelOffer = async (tokenOfferIndex: string, secret: string) => {
 	const wallet = xrpl.Wallet.fromSeed(secret)
-	const client = new xrpl.Client(config.xrpWs)
+	const client = new xrpl.Client(config.xrpWss)
 	await client.connect()
 
 	const tokenIDs = [tokenOfferIndex];
@@ -166,6 +167,7 @@ export const cancelOffer = async (tokenOfferIndex: string, secret: string) => {
   const transactionBlob = {
       	"TransactionType": "NFTokenCancelOffer",
       	"Account": wallet.classicAddress,
+      	// soon will be "NFTokenOffers": tokenIDs,
       	"TokenIDs": tokenIDs
   }
 
@@ -183,23 +185,23 @@ type transactionAcceptOffer = {
 };
 export const acceptOffer = async (isBuyOffer: boolean, tokenOfferIndex: string, secret: string) => {
 	const wallet = xrpl.Wallet.fromSeed(secret)
-	const client = new xrpl.Client(config.xrpWs)
+	const client = new xrpl.Client(config.xrpWss)
 	await client.connect()
 	const transactionBlob: transactionAcceptOffer = {
   	"TransactionType": "NFTokenAcceptOffer",
   	"Account": wallet.classicAddress,
   }
+  // soon will be NFTokenBuyOffer & NFTokenSellOffer
   transactionBlob[isBuyOffer ? 'BuyOffer' : 'SellOffer'] = tokenOfferIndex;
 
-  const tx = await client.submitAndWait(transactionBlob,{wallet})
+  const tx = await client.submitAndWait(transactionBlob,{wallet});
   client.disconnect();
-
 	return tx && tx.result.meta.TransactionResult == 'tesSUCCESS';
 }
 
 // Transactions
 export const accountTransactionXRPL = async (data: GetAccountPayload) => {
-	const client = new xrpl.Client(config.xrpWs)
+	const client = new xrpl.Client(config.xrpWss)
 	await client.connect()
 	const transactionBlob = {
 	  "id": 1,

@@ -149,7 +149,7 @@ export type Account = {
 export type Nfts = {
   Flags: string;
   Issuer: string;
-  TokenID: string;
+  NFTokenID: string;
   TokenTaxon: number;
   URI: string;
   nft_serial: string;

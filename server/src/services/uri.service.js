@@ -44,7 +44,7 @@ const register = async (data) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'URI already added');
   }
   const accountNTFS = await xrpl.getAccountNFTS(decoded.address);
-  if (accountNTFS.filter(e => e.TokenID == nftToken).length == 0) {
+  if (accountNTFS.filter(e => e.NFTokenID == nftToken).length == 0) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Token not found');
   }
 
@@ -113,7 +113,7 @@ const patchUri = async (name, updateBody) => {
 
     // Check coherence with XRPL
     const accountNTFS = await xrpl.getAccountNFTS(updateBody.owner);
-    if (accountNTFS.filter(e => e.TokenID == metaData.properties.nftToken).length == 0)
+    if (accountNTFS.filter(e => e.NFTokenID == metaData.properties.nftToken).length == 0)
       throw new ApiError(httpStatus.BAD_REQUEST, 'Token not found');
 
     // Rm Buy Offer belonging to new owner

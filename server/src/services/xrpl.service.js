@@ -46,7 +46,7 @@ const getOffersNFT = async (tokenid) => {
   const body = {
       "method": "nft_buy_offers",
       "params": [{
-        "tokenid": tokenid,
+        "nft_id": tokenid,
         "strict": true,
         "ledger_index": "validated",
         "api_version": 1

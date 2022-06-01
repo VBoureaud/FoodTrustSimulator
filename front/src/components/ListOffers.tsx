@@ -53,7 +53,7 @@ const ListOffers : React.FunctionComponent<ListOffersProps> = (props) => {
 								<span style={{ fontSize: '12px' }}> by <strong>{elt.owner === props.currentAddr ? 'you' : elt.owner}</strong></span>
 							</Typography>
 						</ListItemText>
-						{props.canGetOffer && elt.owner != props.currentAddr && <ListItemButton onClick={() => props.handleGetOffer(elt.index)} sx={{ maxWidth: '155px', mr: 2 }}>
+						{props.canGetOffer && elt.owner != props.currentAddr && <ListItemButton onClick={() => props.handleGetOffer(elt.nft_offer_index)} sx={{ maxWidth: '155px', mr: 2 }}>
 							{props.getOfferTitle}
 						</ListItemButton>}
 					</ListItem>)}

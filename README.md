@@ -119,6 +119,7 @@ To be corrected in the next version.
 | Leaving the website while creating a new NFT may lose the URI on game server.  |
 | Catch Timeout from XRPL |
 | Some elements are not yet responsive |
+| console.error: Serialized transaction does not match original txJSON => XRPL Code Refactoring since 1.9.0 |
 
 Find an issue ? Contact me at valentin@boureaud.com
 

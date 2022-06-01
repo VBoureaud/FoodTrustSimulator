@@ -172,7 +172,6 @@ const ActivityScene: React.FC<Props> = () => {
       if (!tokenId) throw new Error("Request Fail");
       const uri = await registerUri({ name: nftUri, nftToken: tokenId });
       if (!uri) throw new Error("Request Fail");
-
       
       setMsgSnackBar(snackDialog.newNft);
       setOpenSnack(true);
