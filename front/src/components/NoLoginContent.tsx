@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+//import { Link } from "react-router-dom";
 import logo from "@assets/images/logo.png";
 
 import Container from "@mui/material/Container";
@@ -9,24 +9,33 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import AnchorLink from "react-anchor-link-smooth-scroll";
+import CircularProgress from '@mui/material/CircularProgress';
 
-const NoLoginContent = () => (
+type NoLoginContentProps = {
+  login: Function;
+  loading?: boolean;
+};
+
+const NoLoginContent = (props: NoLoginContentProps) => (
   <React.Fragment>  
     <Container 
       maxWidth="xl"
       sx={{
-        mt: 15,
         height: '100vh',
       }}>
       <Box sx={{
         mx: "auto",
+        height: '100%',
         width: 750,
         display: 'flex',
         alignItems: 'center',
         flexDirection: 'column',
+        justifyContent: 'center',
         position: 'relative',
       }}>
-        <Box>
+        <Box sx={{
+          mt: 6,
+        }}>
           <img src={logo} alt={logo} width='350' />
         </Box>
         <Typography 
@@ -40,22 +49,34 @@ const NoLoginContent = () => (
           sx={{
             color: '#FA7070',
             letterSpacing: '5px',
-            textShadow: '1px 1px #b7abab',
+            textShadow: '1px 1px #bb4343',
+            //textShadow: '1px 1px #b7abab',
         }} variant="h4">SIMULATOR</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Link to='/login'>
-          <Button sx={{ 
-            margin: 3,
-            fontSize: 20,
-            pl: 4,
-            pr: 4,
-            borderRadius: 4,
-          }} color="primary" variant="contained">ENTER</Button>
-        </Link>
-      </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 20 }}>
-        <AnchorLink href='#more'><ArrowDownwardIcon sx={{ fontSize: '45px' }} /></AnchorLink>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          {/*<Link to='/login'>*/}
+            <Button
+              sx={{ 
+                fontSize: 20,
+                pl: 4,
+                pr: 4,
+                borderRadius: 4,
+              }}
+              color="primary"
+              variant="contained"
+              onClick={() => props.login()}
+              >
+              {props.loading && <CircularProgress sx={{ display: 'block', margin: 'auto', color: "white", padding: '5px' }} />}
+              {!props.loading && <span id="enter_button">ENTER</span>}
+            </Button>
+          {/*</Link>*/}
+        </Box>
+        <Box sx={{ 
+            display: 'flex',
+            justifyContent: 'center',
+            mt: 11,
+          }}>
+          <AnchorLink href='#more'><ArrowDownwardIcon sx={{ fontSize: '45px' }} /></AnchorLink>
+        </Box>
       </Box>
     </Container>
     <div style={{ background: 'white', borderTop: '5px solid #003043' }}>

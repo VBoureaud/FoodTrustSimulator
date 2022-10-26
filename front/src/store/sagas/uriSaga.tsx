@@ -12,13 +12,17 @@ import {
 } from "../actions";
 
 import {
-  TYPES_URI
+  TYPES_URI,
 } from "../types/UriTypes";
+
+import {
+  AppState,
+} from "../types";
 
 function* queriesUrisWorker():any {
   try {
-    const uris = yield select((state) => state.uriReducer);
-    const user = yield select((state) => state.userReducer);
+    const uris = yield select((state: AppState) => state.uriReducer);
+    
     const res = yield* callApi(
       queryUris, {
         name: uris.name, 

@@ -25,6 +25,7 @@ export type UserReducerState = {
   searchType: string;
   searchValue: string;
   errorSignUpMsg: string;
+  errorMsg: string;
   errorCreate: boolean;
   loadingCreate: boolean;
   errorGetOne: boolean;
@@ -38,9 +39,12 @@ export type UserReducerState = {
   quest?: boolean;
   questSuccess?: boolean;
   // Sign up
-  name: string;
-  location: City;
+  name?: string | null;
+  profile?: string | null;
+  location?: City | null;
   address: string;
+  walletType?: string;
+  jwt?: string;
 };
 
 // Action Types
@@ -143,6 +147,8 @@ export type CreateUserFailurePayload = {
 };
 export type GetUserPayload = {
   address: string,
+  walletType?: string,
+  jwt?: string,
 };
 export type GetUserFailurePayload = {};
 export type UpdateUserPayload = {

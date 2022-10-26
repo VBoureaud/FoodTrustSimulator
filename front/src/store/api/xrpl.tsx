@@ -32,93 +32,52 @@ export const accountInfoXRPL = async (data: GetAccountPayload) => {
 	return response;
 }
 
-export const mintToken = async (tokenUrl: string, secret: string) => {
-	const wallet = xrpl.Wallet.fromSeed(secret);
-	const client = new xrpl.Client(config.xrpWss);
-	await client.connect();
-	
-	const transactionBlob = {
-		TransactionType: "NFTokenMint",
-		Account: wallet.classicAddress,
-		URI: xrpl.convertStringToHex(tokenUrl),
-		Flags: 8,// transferable
-		TokenTaxon: 0 //Required, but if no use, set to zero.
-	};
-	const tx = await client.submitAndWait(transactionBlob, { wallet });
-	if (!tx || tx.result.meta.TransactionResult != 'tesSUCCESS') {
-		client.disconnect();
-		return false;
-	}
+type transactionAcceptOffer = {
+	TransactionType: string;
+	Account?: string;
+	NFTokenBuyOffer?: string;
+	NFTokenSellOffer?: string;
+};
 
-	// Get TokenID
-	const nfts = await client.request({
-		method: "account_nfts",
-		account: wallet.classicAddress
-	});
+export const mintToken = (tokenUrl: string) => ({
+	"TransactionType": "NFTokenMint",
+	"URI": xrpl.convertStringToHex(tokenUrl),
+	"Flags": 8,// transferable
+	"NFTokenTaxon": 0 //Required, but if no use, set to zero.
+})
 
-	client.disconnect();
-	if (!nfts || !nfts.result || !nfts.result.account_nfts)
-		return false;
+export const burnToken = (tokenId: string) => ({
+	"TransactionType": "NFTokenBurn",
+	"NFTokenID": tokenId,
+})
+export const createSellOffer = (amount: string, tokenId: string) => ({
+	"TransactionType": "NFTokenCreateOffer",
+	"NFTokenID": tokenId,
+	"Amount": amount,
+	"Flags": 1
+})
 
-	const tokenId = nfts.result.account_nfts[nfts.result.account_nfts.length - 1].NFTokenID;
-	return tokenId;
-}
+export const createBuyOffer = (owner: string, amount: string, tokenId: string) => ({
+	"TransactionType": "NFTokenCreateOffer",
+	"Owner": owner,
+	"NFTokenID": tokenId,
+	"Amount": amount,
+	"Flags": 0
+})
 
-export const burnToken = async (tokenId: string, secret: string) => {
-  const wallet = xrpl.Wallet.fromSeed(secret);
-  const client = new xrpl.Client(config.xrpWss);
-  await client.connect();
+export const cancelOffer = (tokenOfferIndex: string) => ({
+	"TransactionType": "NFTokenCancelOffer",
+	"NFTokenOffers": [tokenOfferIndex],
+})
 
-  const transactionBlob = {
-      "TransactionType": "NFTokenBurn",
-      "Account": wallet.classicAddress,
-      // soon will be "NFTokenID": tokenId,
-      "TokenID": tokenId,
-  };
-
-  const tx = await client.submitAndWait(transactionBlob, { wallet });
-  client.disconnect();
-  return tx && tx.result.meta.TransactionResult == 'tesSUCCESS';
-}
-
-export const createSellOffer = async (amount: string, tokenId: string, secret: string) => {
-	const wallet = xrpl.Wallet.fromSeed(secret)
-	const client = new xrpl.Client(config.xrpWss)
-	await client.connect()
-
-  const transactionBlob = {
-  	"TransactionType": "NFTokenCreateOffer",
-  	"Account": wallet.classicAddress,
-  	"TokenID": tokenId,//NFTokenID soon
-  	"Amount": amount,
-  	"Flags": 1
-  };
-
-  const tx = await client.submitAndWait(transactionBlob,{wallet})
-  client.disconnect();
-
-  return tx && tx.result.meta.TransactionResult == 'tesSUCCESS';
-}
-
-export const createBuyOffer = async (owner: string, amount: string, tokenId: string, secret: string) => {
-	const wallet = xrpl.Wallet.fromSeed(secret)
-	const client = new xrpl.Client(config.xrpWss)
-	await client.connect()
-
-  const transactionBlob = {
-		"TransactionType": "NFTokenCreateOffer",
-		"Account": wallet.classicAddress,
-		"Owner": owner,
-		"TokenID": tokenId,//NFTokenID soon
-		"Amount": amount,
-		"Flags": 0
+export const acceptOffer = (isBuyOffer: boolean, tokenOfferIndex: string) => {
+	const transactionBlob: transactionAcceptOffer = {
+  	"TransactionType": "NFTokenAcceptOffer",
   }
-
-  const tx = await client.submitAndWait(transactionBlob,{wallet})
-  client.disconnect();
-
-  return tx && tx.result.meta.TransactionResult == 'tesSUCCESS';
+  transactionBlob[isBuyOffer ? 'NFTokenBuyOffer' : 'NFTokenSellOffer'] = tokenOfferIndex;
+  return transactionBlob;
 }
+
 
 // Get Buy & Sell offers
 export const getOffers = async (tokenId: string) => {
@@ -155,48 +114,6 @@ export const getOffers = async (tokenId: string) => {
   	nftSellOffers,
   	nftBuyOffers
   }
-}
-
-export const cancelOffer = async (tokenOfferIndex: string, secret: string) => {
-	const wallet = xrpl.Wallet.fromSeed(secret)
-	const client = new xrpl.Client(config.xrpWss)
-	await client.connect()
-
-	const tokenIDs = [tokenOfferIndex];
-
-  const transactionBlob = {
-      	"TransactionType": "NFTokenCancelOffer",
-      	"Account": wallet.classicAddress,
-      	// soon will be "NFTokenOffers": tokenIDs,
-      	"TokenIDs": tokenIDs
-  }
-
-  const tx = await client.submitAndWait(transactionBlob,{wallet})
-  client.disconnect();
-
-	return tx && tx.result.meta.TransactionResult == 'tesSUCCESS';
-}
-
-type transactionAcceptOffer = {
-	TransactionType: string;
-	Account: string;
-	BuyOffer?: string;
-	SellOffer?: string;
-};
-export const acceptOffer = async (isBuyOffer: boolean, tokenOfferIndex: string, secret: string) => {
-	const wallet = xrpl.Wallet.fromSeed(secret)
-	const client = new xrpl.Client(config.xrpWss)
-	await client.connect()
-	const transactionBlob: transactionAcceptOffer = {
-  	"TransactionType": "NFTokenAcceptOffer",
-  	"Account": wallet.classicAddress,
-  }
-  // soon will be NFTokenBuyOffer & NFTokenSellOffer
-  transactionBlob[isBuyOffer ? 'BuyOffer' : 'SellOffer'] = tokenOfferIndex;
-
-  const tx = await client.submitAndWait(transactionBlob,{wallet});
-  client.disconnect();
-	return tx && tx.result.meta.TransactionResult == 'tesSUCCESS';
 }
 
 // Transactions

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { compose } from "redux";
-import { RouteComponentProps, Redirect } from "react-router-dom";
+import { RouteComponentProps, Redirect, useHistory } from "react-router-dom";
 import { hot } from 'react-hot-loader';
-import { History } from 'history';
+//import { History } from 'history';
 
 import { 
   logout,
@@ -33,7 +33,7 @@ interface RouteParams {
 }
 
 interface Props extends RouteComponentProps<RouteParams> {
-  history: History
+  //history: History
 }
 
 const CollectionScene: React.FC<Props> = (props) => {
@@ -47,6 +47,7 @@ const CollectionScene: React.FC<Props> = (props) => {
   const dispatchRemoteTokens = compose(dispatch, getRemoteTokens);
   const dispatchResetRemote = compose(dispatch, resetRemoteTokens);
   const [redirctTo, setRedirctTo] = useState(false);
+  const history = useHistory();
 
   useEffect(() => {
     if (!stateUser.user) {
@@ -55,7 +56,7 @@ const CollectionScene: React.FC<Props> = (props) => {
   })
 
   const handleBack = () => {
-    props.history.goBack();
+    history.goBack();
     dispatchResetRemote();
   }
 

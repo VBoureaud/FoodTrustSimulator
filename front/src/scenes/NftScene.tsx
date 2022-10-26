@@ -6,6 +6,7 @@ import { hot } from "react-hot-loader";
 import { History } from "history";
 import { decodeHashURI, displayDate, unPad } from "@utils/helpers";
 import { nameTypeToken } from "@utils/gameEngine";
+import { config } from "@config";
 
 import '@utils/TypeToken.less';
 
@@ -57,6 +58,7 @@ import FormDialog from "@components/FormDialog";
 import ListOffers from "@components/ListOffers";
 import WorldMap from "@components/WorldMap";
 import ListSimple from "@components/ListSimple";
+import Web3ProviderXRPL from "@components/Web3ProviderXRPL";
 
 interface RouteParams {
   id: string,
@@ -102,6 +104,7 @@ const NftScene: React.FC<Props> = (props) => {
   const [uriInfo, setUriInfo] = useState(null);
   const [isRemoteToken, setIsRemoteToken] = useState(false);
   const [nftToDelete, setNftToDelete] = useState(false);
+  const [payloadXRPL, setPayloadXRPL] = useState(null);
 
   // Offer
   const [offerValue, setOfferValue] = useState(''); // when do an offer
@@ -128,33 +131,127 @@ const NftScene: React.FC<Props> = (props) => {
     }
   })
 
-  const dialogOffer = <span>Enter your offer in XRP</span>;
-  
-  // todo clean
-  const buildDialogXrp = (offerValue: string, cancelValue: boolean, offerAccept: boolean) => {
-    return (
-      <span style={{ wordBreak: 'break-word' }}>
-        {offerValue && <span>Do you confirm your offer of <strong>{xrpl.dropsToXrp(offerValue)}</strong> XRP ?</span>}
-        {cancelValue && <span>Do you confirm to cancel your offer ?</span>}
-        {offerAccept && <span>Do you accept this offer ?</span>}
-      </span>
-    )}
+  // Make Offer
+  useEffect(() => {
+    if (offerValue && !uriInfo) {
+      handleInit();
+      throw new Error("Cannot make Offer if URI not found.");
+    }
 
-  const handleUpdate = async () => {
-    await dispatchGetTokens({ address: stateAccount.address });
-    await dispatchAccount({ address: stateAccount.address });
-    await dispatchUser({ address: stateAccount.address });
-    await dispatchGetOffers({ tokenId: props.match.params.id });
-    await dispatchHistory({ tokenId: props.match.params.id });
-    const isBuyOffer = offerBuyIndex ? true : false;
+    if (makeBuyOffer && offerValue) {
+      const payload = createBuyOffer(
+        stateAccount.remote_address,
+        offerValue,
+        props.match.params.id,
+      );
+      setPayloadXRPL(payload);
+    } else if (makeSellOffer && offerValue) {
+      const payload = createSellOffer(
+        offerValue,
+        props.match.params.id,
+      );
+      setPayloadXRPL(payload);
+    }
+
+  }, [offerValue])
+
+  // Cancel Offer
+  useEffect(() => {
+    if (cancelSellOfferIndex || cancelBuyOfferIndex)
+      setPayloadXRPL(
+        cancelOffer(
+          cancelBuyOfferIndex
+          ? cancelBuyOfferIndex
+          : cancelSellOfferIndex)
+      );
+  }, [cancelBuyOfferIndex, cancelSellOfferIndex])
+
+  // Accept Offer
+  useEffect(() => {
+    if (offerBuyIndex || offerSellIndex)
+      setPayloadXRPL(
+        acceptOffer(
+          !!offerBuyIndex,
+          offerBuyIndex
+          ? offerBuyIndex
+          : offerSellIndex)
+      );
+  }, [offerBuyIndex, offerSellIndex])
+  
+  // Burn NftToken
+  useEffect(() => {
+    if (nftToDelete)
+      setPayloadXRPL(
+        burnToken(props.match.params.id)
+      );
+  }, [nftToDelete])
+
+  const handleInit = () => {
+    setOfferValue('')
+    setMakeBuyOffer(false);
+    setMakeSellOffer(false);
+    
+    setCancelBuyOfferIndex('')
+    setCancelSellOfferIndex('')
+
     setOfferBuyIndex('');
     setOfferSellIndex('');
 
-    // NFT owner != current account, go back
-    if (isBuyOffer) {
-      props.history.goBack();
-    } else {
-      // update remote_tokens
+    setNftToDelete(false);
+
+    setPayloadXRPL(null);
+  }
+
+  // after success on XRPL
+  const handleTransaction = async (data: any) => {
+    // When make an offer
+    if (makeBuyOffer) {
+      const uriUpdated = await updateUri({ 
+        name: uriInfo.name,
+        offerBuy: stateAccount.address
+      });
+      if (!uriUpdated) throw new Error("Request Fail");
+      dispatchAddUri(uriUpdated);
+    }
+    // if (makeSellOffer) {}
+    if (makeBuyOffer || makeSellOffer)
+      dispatchGetOffers({ tokenId: props.match.params.id });
+
+    // --------------------
+    // When cancel an Offer
+    if (cancelBuyOfferIndex) {
+      const uriUpdated = await updateUri({ 
+        name: uriInfo.name,
+        offerBuy: stateAccount.address
+      });
+      if (!uriUpdated) throw new Error("Request Fail");
+      dispatchAddUri(uriUpdated);
+    }
+    //if (cancelSellOfferIndex) {}
+    if (cancelSellOfferIndex || cancelBuyOfferIndex)
+      dispatchGetOffers({ tokenId: props.match.params.id });
+
+    // --------------------
+    // When accept an Offer
+    if (offerBuyIndex) {
+      // NFT owner != current account
+      const offerBuyAddress = stateNft.buyOffers ? stateNft.buyOffers.filter(e => e.nft_offer_index == offerBuyIndex) : [];
+      const uriUpdated = await updateUri({ 
+        name: uriInfo.name,
+        owner: offerBuyAddress[0].owner,
+      });
+      if (!uriUpdated) throw new Error("Request Fail");
+      dispatchAddUri(uriUpdated);
+    }
+    if (offerSellIndex) {
+      const uriUpdated = await updateUri({ 
+        name: uriInfo.name,
+        owner: stateAccount.address,
+      });
+      if (!uriUpdated) throw new Error("Request Fail");
+      dispatchAddUri(uriUpdated);
+
+      // update remote token
       dispatchRemoteTokens({
         remote_address: stateAccount.remote_address,
         remote_name: stateAccount.remote_name,
@@ -162,21 +259,25 @@ const NftScene: React.FC<Props> = (props) => {
       });
       setTokenInfo(getTokenInfo(props.match.params.id));
       setUriInfo(getUriInfo(props.match.params.id));
+    }
+    if (offerBuyIndex || offerSellIndex) {
+      await dispatchUser({ address: stateAccount.address });
+      await dispatchGetOffers({ tokenId: props.match.params.id });
+      await dispatchHistory({ tokenId: props.match.params.id });
       props.history.goBack();
     }
+
+    // --------------------
+    // When burn an NftToken
+    if (nftToDelete) {
+      dispatchGetTokens({ address: stateAccount.address });
+      dispatchAccount({ address: stateAccount.address });
+      props.history.goBack();
+    }
+
+    handleInit();
   }
-  const handleDelete = () => {
-    setNftToDelete(true);
-  }
-  const handleGetOfferBuy = (offerIndex: string) => {
-    setOfferBuyIndex(offerIndex);
-  }
-  const handleGetOfferSell = (offerIndex: string) => {
-    setOfferSellIndex(offerIndex);
-  }
-  const handleOfferNft = (isBuy: boolean) => {
-    (isBuy) ? setMakeBuyOffer(true) : setMakeSellOffer(true);
-  }
+
   const handleCancelOffer = (offers: Offers[]) => {
     const ownerOffer = offers.filter((elt: Offers) => elt.owner == stateAccount.address);
     if (!ownerOffer.length) return false; // not be possible
@@ -185,6 +286,7 @@ const NftScene: React.FC<Props> = (props) => {
   }
 
   // FormDialog
+  const dialogOffer = <span>Enter your offer in XRP</span>;
   const onFormDialogCheckData = (value: string) => {
     if (isNaN(parseInt(value)) || parseInt(value) < 0)
       return false;
@@ -195,110 +297,6 @@ const NftScene: React.FC<Props> = (props) => {
   }
   const onFormDialogConfirm = (value: string) => {
     setOfferValue(xrpl.xrpToDrops(value));
-  }
-
-  // XrpBridge
-  const onXRPConfirmOffer = async (secret: string) => {
-    try {
-      if (!uriInfo) throw new Error("Cannot make Offer if URI not found.");
-      let res;
-      if (makeBuyOffer) {
-        res = await createBuyOffer(
-          stateAccount.remote_address,
-          offerValue,
-          props.match.params.id,
-          secret
-        );
-        const uriUpdated = await updateUri({ 
-          name: uriInfo.name,
-          offerBuy: stateAccount.address
-        });
-        if (!uriUpdated) throw new Error("Request Fail");
-        dispatchAddUri(uriUpdated);
-        // to do tupdate uri list? or not because buy guy not need
-      } else if (makeSellOffer) {
-        res = await createSellOffer(
-          offerValue,
-          props.match.params.id,
-          secret
-        );
-      }
-      if (!res) throw new Error("Request Fail");
-      // reload tokens offers
-      dispatchGetOffers({ tokenId: props.match.params.id });
-    } catch (error) {
-      return false;
-    }
-    return true;
-  }
-  const onXRPConfirmCancel = async (secret: string) => {
-    try {
-      const res = await cancelOffer(
-        cancelBuyOfferIndex ? cancelBuyOfferIndex : cancelSellOfferIndex,
-        secret
-      );
-      if (!res) throw new Error("Request Fail");
-
-      if (cancelBuyOfferIndex) {
-        const uriUpdated = await updateUri({ 
-          name: uriInfo.name,
-          offerBuy: stateAccount.address
-        });
-        if (!uriUpdated) throw new Error("Request Fail");
-        dispatchAddUri(uriUpdated);
-      }
-    } catch (error) {
-      return false;
-    }
-    return true;
-  }
-  const onXRPAcceptOffer = async (secret: string) => {
-    try {
-      const isOfferBuy = offerBuyIndex ? true : false;
-      const offerIndex = offerBuyIndex ? offerBuyIndex : offerSellIndex;
-      const offerBuyAddress = stateNft.buyOffers ? stateNft.buyOffers.filter(e => e.nft_offer_index == offerBuyIndex) : [];
-      if (isOfferBuy && !offerBuyAddress.length) {
-        throw new Error("Coherence Fail");
-      }
- 
-      const res = await acceptOffer(
-        isOfferBuy,
-        offerIndex,
-        secret
-      );
-      if (!res) throw new Error("Request Fail");
-      if (isOfferBuy) {
-        const uriUpdated = await updateUri({ 
-          name: uriInfo.name,
-          owner: offerBuyAddress[0].owner,
-        });
-        if (!uriUpdated) throw new Error("Request Fail");
-        dispatchAddUri(uriUpdated);
-      } else {
-        // is sell offer accepted
-        const uriUpdated = await updateUri({ 
-          name: uriInfo.name,
-          owner: stateAccount.address,
-        });
-        if (!uriUpdated) throw new Error("Request Fail");
-        dispatchAddUri(uriUpdated);
-      }
-
-    } catch (error) {
-      //console.log(error);
-      return false;
-    }
-    return true;
-  }
-  const onXRPConfirmBurn = async (secret: string) => {
-    try {
-      const res = await burnToken(props.match.params.id, secret);
-      if (!res) throw new Error("Request Fail");
-    } catch (error) {
-      //console.log(error);
-      return false;
-    }
-    return true;
   }
 
   const getUriInfo = (tokenID: string) => {
@@ -328,6 +326,18 @@ const NftScene: React.FC<Props> = (props) => {
         isLogged={!!stateAccount.address}
         logout={dispatchLogout}
       >
+      
+      <Web3ProviderXRPL
+        handleClose={handleInit}
+        visible={!!payloadXRPL}
+        handleTransaction={handleTransaction}
+        walletType={stateUser.walletType}
+        currentJwt={stateUser.jwt}
+        payload={payloadXRPL}
+        xrplUrl={config.xrpWss}
+        //errorMsg={stateUser.errorMsg}
+      />
+
       {(makeBuyOffer || makeSellOffer) && !offerValue &&
         <FormDialog 
           title={'Make an Offer'}
@@ -343,71 +353,10 @@ const NftScene: React.FC<Props> = (props) => {
           onConfirm={onFormDialogConfirm}
         />}
 
-      {offerValue && 
-        <XRPLBridge
-          dialogText={buildDialogXrp(offerValue, null, false)}
-          onCancel={() => {
-            setOfferValue('');
-            setMakeBuyOffer(false);
-            setMakeSellOffer(false);
-          }}
-          onConfirm={onXRPConfirmOffer}
-          onClose={() => {
-            setOfferValue('');
-            setMakeBuyOffer(false);
-            setMakeSellOffer(false);
-            dispatchAccount({ address: stateAccount.address });
-            dispatchUser({ address: stateAccount.address });
-          }}
-        />}
-
-      {(cancelSellOfferIndex || cancelBuyOfferIndex) && 
-        <XRPLBridge
-          dialogText={buildDialogXrp(null, true, false)}
-          onCancel={() => {
-            if (cancelBuyOfferIndex) setCancelBuyOfferIndex('')
-            else if (cancelSellOfferIndex) setCancelSellOfferIndex('')
-          }}
-          onConfirm={onXRPConfirmCancel}
-          onClose={() => {
-            if (cancelBuyOfferIndex) setCancelBuyOfferIndex('')
-            else if (cancelSellOfferIndex) setCancelSellOfferIndex('')
-            dispatchAccount({ address: stateAccount.address });
-            dispatchGetOffers({ tokenId: props.match.params.id });
-          }}
-        />}
-
-      {(offerBuyIndex || offerSellIndex) && 
-        <XRPLBridge
-          dialogText={buildDialogXrp(null, false, true)}
-          onCancel={() => {
-            setOfferBuyIndex('');
-            setOfferSellIndex('');
-          }}
-          onConfirm={onXRPAcceptOffer}
-          onClose={() => {
-            handleUpdate();
-          }}
-        />}
-
-      {nftToDelete && 
-        <XRPLBridge
-          dialogText={'Do you confirm the destruction of this NFToken ?'}
-          onCancel={() => setNftToDelete(false)}
-          onConfirm={onXRPConfirmBurn}
-          onClose={() => {
-            dispatchGetTokens({ address: stateAccount.address });
-            dispatchAccount({ address: stateAccount.address });
-            props.history.goBack();
-          }}
-        />}
-
       <Container sx={{ mb: 5 }}>
         <Button onClick={props.history.goBack} sx={{ m: 2, color:'black' }} startIcon={<ArrowBackIosIcon />}>Back</Button>
-
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
-            
             <Grid item xs={5}>
               {!uriInfo &&
                 <Paper elevation={3} sx={{ wordBreak: 'break-word', minHeight: 280, padding: 2 }}>
@@ -449,7 +398,7 @@ const NftScene: React.FC<Props> = (props) => {
               </Paper>
 
               {!isRemoteToken && <Paper elevation={3} sx={{ mt: 2, background: 'tomato' }}>
-                <Button sx={{ width: '100%', color: 'white' }} onClick={handleDelete}>
+                <Button sx={{ width: '100%', color: 'white' }} onClick={() => setNftToDelete(true)}>
                   <Typography>Delete?</Typography>
                 </Button>
               </Paper>}
@@ -460,7 +409,6 @@ const NftScene: React.FC<Props> = (props) => {
                 <Typography variant="h6">Ready to Sell for:</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                   {stateNft.loadingGetOffers && <CircularProgress sx={{ display: 'block', margin: 'auto', color: "white" }} />}
-
                   {!stateNft.loadingGetOffers &&
                     <ListOffers
                       doOfferTitle={'Make a price'}
@@ -470,13 +418,12 @@ const NftScene: React.FC<Props> = (props) => {
                       listOffers={stateNft.sellOffers}
                       canGetOffer={isRemoteToken}
                       getOfferTitle={'Accept the price'}
-                      handleGetOffer={handleGetOfferSell}
-                      handleMakeOffer={() => handleOfferNft(false)}
+                      handleGetOffer={(offerIndex: string) => setOfferSellIndex(offerIndex)}
+                      handleMakeOffer={() => setMakeSellOffer(true)}
                       handleCancelOffer={handleCancelOffer}
                       emptyTitle={'No sell offer'}
                       currentAddr={stateAccount.address}
                     />}
-
                 </Box>
               </Paper>
             </Grid>
@@ -486,7 +433,6 @@ const NftScene: React.FC<Props> = (props) => {
                 <Typography variant="h6">Ready to Buy for:</Typography>
                 <Box sx={{ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                   {stateNft.loadingGetOffers && <CircularProgress sx={{ display: 'block', margin: 'auto', color: "white" }} />}
-
                   {!stateNft.loadingGetOffers &&
                     <ListOffers
                       doOfferTitle={'Make an offer'}
@@ -496,13 +442,12 @@ const NftScene: React.FC<Props> = (props) => {
                       listOffers={stateNft.buyOffers}
                       canGetOffer={!isRemoteToken}
                       getOfferTitle={'Accept offer'}
-                      handleGetOffer={handleGetOfferBuy}
-                      handleMakeOffer={() => handleOfferNft(true)}
+                      handleGetOffer={(offerIndex: string) => setOfferBuyIndex(offerIndex)}
+                      handleMakeOffer={() => setMakeBuyOffer(true)}
                       handleCancelOffer={handleCancelOffer}
                       emptyTitle={'No buy offer'}
                       currentAddr={stateAccount.address}
                     />}
-
                 </Box>
               </Paper>
             </Grid>
@@ -539,8 +484,6 @@ const NftScene: React.FC<Props> = (props) => {
 
           </Grid>
         </Box>
-
-
       </Container>
     </Template>;
 

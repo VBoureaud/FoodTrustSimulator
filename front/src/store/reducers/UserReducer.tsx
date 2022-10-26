@@ -27,7 +27,8 @@ const defaultState: UserReducerState = {
   usersPage: 1,
   searchType: 'name',
   searchValue: '',
-  errorSignUpMsg: '',
+  errorSignUpMsg: '', // todo delet ?
+  errorMsg: '',
   loadingCreate: false,
   errorCreate: false,
   errorGetOne: false,
@@ -42,8 +43,11 @@ const defaultState: UserReducerState = {
   questSuccess: false,
   // sign up
   name: null,
+  profile: null,
   location: null,
   address: null,
+  jwt: '',
+  walletType: '',
 };
 
 export const userReducer = createReducer(
@@ -65,20 +69,20 @@ export const userReducer = createReducer(
     [TYPES_USER.CREATE_USER_FAILURE]: (state: UserReducerState, payload: CreateUserFailurePayload) => ({
       ...state,
       ...payload,
-      address: '',
-      name: '',
       loadingCreate: false,
       errorCreate: true,
     }),
     [TYPES_USER.GET_USER]: (state: UserReducerState, payload: GetUserPayload) => ({
       ...state,
       ...payload,
+      errorMsg: '',
       loadingGetOne: true,
       errorGetOne: false,
     }),
     [TYPES_USER.GET_USER_SUCCESS]: (state: UserReducerState, payload: UserPayload) => ({
       ...state,
       ...payload,
+      errorMsg: '',
       loadingGetOne: false,
       errorGetOne: false,
     }),

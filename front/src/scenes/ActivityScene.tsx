@@ -16,6 +16,7 @@ import {
 import { 
   mintToken,
   registerUri,
+  getTokensXRPL,
 } from "@store/api";
 
 import { 
@@ -23,10 +24,13 @@ import {
   unPad,
 } from "@utils/helpers";
 
+import { config } from "@config";
+
 import "@utils/TypeToken.less";
 import { AppState } from "@store/types";
 import Template from "@components/Template";
 import XRPLBridge from "@components/XRPLBridge";
+import Web3ProviderXRPL from "@components/Web3ProviderXRPL";
 
 import GameAddition from "@components/Game/GameAddition";
 import GameTickle from "@components/Game/GameTickle";
@@ -86,8 +90,6 @@ const gameMapper: GameMapper = {
 
 type Props = {};
 
-const dialogText = <span>To recieve your <strong>NFT</strong> from <strong>XRPLedger</strong>, please enter your <strong>secret credential</strong>.</span>;
-
 const snackDialog = {
   'newNft': 'New NFT added to your collection.',
   'badQuest': 'Incomplete quest.',
@@ -106,6 +108,7 @@ const ActivityScene: React.FC<Props> = () => {
   const dispatchAddUri = compose(dispatch, addUri);
   const [redirctTo, setRedirctTo] = useState(false);
   const [nftWinner, setNftWinner] = useState(false);
+  const [payloadXRPL, setPayloadXRPL] = useState(null);
   const [msgSnackBar, setMsgSnackBar] = useState(snackDialog.newNft);
   const [openSnack, setOpenSnack] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -113,10 +116,20 @@ const ActivityScene: React.FC<Props> = () => {
   const isLimitPocket = stateAccount.nfts && stateUser.user ? stateAccount.nfts.length == stateUser.user.pocket : false;
 
   useEffect(() => {
-    if (!stateUser.user) {
+    if (!stateUser.user || !stateUser.user.name) {
       setRedirctTo(true);
     }
   })
+
+  // MintNft
+  useEffect(() => {
+    if (nftWinner && nftUri) {
+      const payload = mintToken(
+        nftUri
+      );
+      setPayloadXRPL(payload);
+    }
+  }, [nftWinner])
 
   useEffect(() => {
     if (stateUser.quest && !stateUser.loadingUpdate) {
@@ -161,18 +174,20 @@ const ActivityScene: React.FC<Props> = () => {
     setNftUri(hashURI(stateAccount.address, type));
     setNftWinner(true);
   }
-  const onWinCancel = () => {
+  const handleInit = () => {
     setNftUri('');
     setNftWinner(false);
+    setPayloadXRPL(null);
   }
-  
-  const onWinConfirm = async (secret: string) => {
+  const handleTransaction = async (data: any) => {
     try {
-      const tokenId = await mintToken(nftUri, secret);
-      if (!tokenId) throw new Error("Request Fail");
+      const nfts = await getTokensXRPL({ address: stateAccount.address });
+      if (!nfts || !nfts.result || !nfts.result.account_nfts)
+        throw new Error("Request Fail");
+      const tokenId = nfts.result.account_nfts[nfts.result.account_nfts.length - 1].NFTokenID;
       const uri = await registerUri({ name: nftUri, nftToken: tokenId });
       if (!uri) throw new Error("Request Fail");
-      
+    
       setMsgSnackBar(snackDialog.newNft);
       setOpenSnack(true);
       dispatchAddUri(uri);
@@ -180,10 +195,12 @@ const ActivityScene: React.FC<Props> = () => {
       dispatchGetTokens({ address: stateAccount.address });
       dispatchAccount({ address: stateAccount.address });
       dispatchUser({ address: stateAccount.address });
+      // close
+      handleInit();
     } catch (error) {
+      console.log({ error });
       return false;
     }
-    return true;
   }
 
   const render =
@@ -191,13 +208,17 @@ const ActivityScene: React.FC<Props> = () => {
         isLogged={!!stateAccount.address}
         logout={dispatchLogout}
       >
-      {nftWinner && 
-        <XRPLBridge
-          dialogText={dialogText}
-          onCancel={onWinCancel}
-          onConfirm={onWinConfirm}
-          onClose={onWinCancel}
-        />}
+      <Web3ProviderXRPL
+        handleClose={handleInit}
+        visible={!!payloadXRPL}
+        handleTransaction={handleTransaction}
+        walletType={stateUser.walletType}
+        currentJwt={stateUser.jwt}
+        payload={payloadXRPL}
+        xrplUrl={config.xrpWss}
+        //errorMsg={stateUser.errorMsg}
+      />
+
       <Container sx={{ mb: 5 }}>
         <Alert sx={{ background: '#3c5e82' }} severity="info">
           How it work? <span style={{ fontWeight: 'bold' }}>Play</span> to win new NFT to add in your <span style={{ fontWeight: 'bold' }}>collection</span>.

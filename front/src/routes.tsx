@@ -8,7 +8,6 @@ import { theme } from "./themeContext";
 
 import NftScene from '@scenes/NftScene';
 import HomeScene from '@scenes/HomeScene';
-import LoginScene from '@scenes/LoginScene';
 import ProfileScene from '@scenes/ProfileScene';
 import ActivityScene from '@scenes/ActivityScene';
 import CollectionScene from '@scenes/CollectionScene';
@@ -23,7 +22,6 @@ const Routes = () => (
       <CssBaseline />
       <Switch>
         <Route exact path='/' component={HomeScene} />
-        <Route exact path='/login' component={LoginScene} />
         <Route exact path='/profile' component={ProfileScene} />
         <Route exact path='/play' component={ActivityScene} />
         <Route exact path='/collection' component={CollectionScene} />

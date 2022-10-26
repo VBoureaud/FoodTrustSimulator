@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { compose } from "redux";
 import { AppState } from "@store/types";
 import { 
-  updateUser,
+  CreateUserPayload,
+} from "@store/types/UserTypes";
+import { 
+  createUser,
   logout 
 } from "@store/actions";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,10 +23,11 @@ import {
 } from "@utils/helpers";
 
 import { hot } from "react-hot-loader";
+import { apiServer } from "@config";
 
 import Template from "@components/Template";
 import CustomizedProgressBars from "@components/CustomizedProgressBars";
-import ProfileChooser, { Profile } from "@components/ProfileChooser";
+import ProfileCreator, { Profile } from "@components/ProfileCreator";
 import './ProfileScene.less';
 
 import Button from "@mui/material/Button";
@@ -40,15 +44,15 @@ type ProfileProps = {
 
 const listProfiles: ProfileProps[] = [
   {
-    name: 'farmer 1',
+    name: 'farmer',
     type: 'farmer',
   },
   {
-    name: 'farmer 2',
+    name: 'manager',
     type: 'manager',
   },
   {
-    name: 'farmer 3',
+    name: 'cook',
     type: 'cook',
   },
 ]
@@ -60,7 +64,7 @@ const ProfileScene: React.FC<Props> = () => {
   const stateAccount = useSelector((state: AppState) => state.accountReducer);
   const stateUser = useSelector((state: AppState) => state.userReducer);
   const dispatchLogout = compose(dispatch, logout);
-  const dispatchUpdate = compose(dispatch, updateUser);
+  const dispatchCreate = compose(dispatch, createUser);
   const [redirctTo, setRedirctTo] = useState(false);
   const [badges, setBadges] = useState(null);
 
@@ -90,8 +94,8 @@ const ProfileScene: React.FC<Props> = () => {
     }
   })
 
-  const updateProfil = (profile: string) => {
-    dispatchUpdate({ profile });
+  const handleCreateProfil = (createUser: CreateUserPayload) => {
+    dispatchCreate(createUser);
   }
 
   const doProgress = (experience: number) => {
@@ -111,12 +115,15 @@ const ProfileScene: React.FC<Props> = () => {
         && !stateUser.user.profile
         && <Container>
         <Box component="main" maxWidth="xl" sx={{ mb: 4 }}>
-          <Typography variant="h2" sx={{ color: 'black', textAlign: 'center' }}>First time ? Please, choose a Profile.</Typography>
+          <Typography variant="h2" sx={{ color: 'black', textAlign: 'center', fontSize: '30px' }}>Welcome in <span style={{ fontSize: '40px' }}>Food Trust Simulator</span>.</Typography>
         </Box>
         <Box component="main" maxWidth="xl" sx={{ mb: 5 }}>
-          <ProfileChooser
+          <ProfileCreator
             listProfiles={listProfiles}
-            onClick={updateProfil}
+            onClick={handleCreateProfil}
+            apiServer={apiServer.getCities.url}
+            loadingConfirm={stateUser.loadingCreate}
+            errConfirm={stateUser.errorCreate}
           />
         </Box>
       </Container>}

@@ -15,12 +15,16 @@ import {
 } from "../actions";
 
 import {
-  TYPES_NFT
+  TYPES_NFT,
 } from "../types/NftTypes";
+
+import {
+  AppState,
+} from "../types";
 
 function* getOffersWorker():any {
   try {
-    const nft = yield select((state) => state.nftReducer);
+    const nft = yield select((state: AppState) => state.nftReducer);
     const res = yield getOffers(nft.tokenId);
     yield put(getOffersSuccess({ 
       buyOffers: res.nftBuyOffers, 
@@ -35,7 +39,7 @@ function* getOffersWorker():any {
 
 function* getHistoryWorker():any {
   try {
-    const nft = yield select((state) => state.nftReducer);
+    const nft = yield select((state: AppState) => state.nftReducer);
     const res = yield* callApi(getHistory, {
       tokenId: nft.tokenId,
     });

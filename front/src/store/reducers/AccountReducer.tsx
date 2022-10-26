@@ -46,6 +46,24 @@ const defaultState: AccountReducerState = {
 
 export const accountReducer = createReducer(
   {
+    [TYPES_ACCOUNT.REFRESH]: (state: AccountReducerState, payload: GetAccountPayload) => ({
+      ...state,
+      ...payload,
+      loadingRefresh: true,
+      errorRefresh: false,
+    }),
+    [TYPES_ACCOUNT.REFRESH_SUCCESS]: (state: AccountReducerState, payload: AccountPayload) => ({
+      ...state,
+      ...payload,
+      loadingRefresh: false,
+      errorRefresh: false,
+    }),
+    [TYPES_ACCOUNT.REFRESH_FAILURE]: (state: AccountReducerState, payload: AccountFailurePayload) => ({
+      ...state,
+      ...payload,
+      loadingRefresh: false,
+      errorRefresh: true,
+    }),
     [TYPES_ACCOUNT.GET_ACCOUNT]: (state: AccountReducerState, payload: GetAccountPayload) => ({
       ...state,
       ...payload,
@@ -141,6 +159,10 @@ export const accountReducer = createReducer(
     }),
 
     // Special case
+    [TYPES_USER.GET_USER_SUCCESS]: (state: AccountReducerState, payload: UserPayload) => ({
+      ...state,
+      address: payload.user.address,
+    }),
     [TYPES_USER.CREATE_USER_SUCCESS]: (state: AccountReducerState, payload: UserPayload) => ({
       ...state,
       address: payload.user.address,

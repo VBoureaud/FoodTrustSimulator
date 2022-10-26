@@ -30,12 +30,16 @@ import {
 } from "../actions";
 
 import {
-  TYPES_USER
+  TYPES_USER,
 } from "../types/UserTypes";
+
+import {
+  AppState,
+} from "../types";
 
 function* getAllUsersWorker():any {
   try {
-    const userState = yield select((state) => state.userReducer);
+    const userState = yield select((state: AppState) => state.userReducer);
     const res = yield* callApi(getAll, { 
       usersPage: userState.usersPage,
       searchValue: userState.searchValue,
@@ -49,7 +53,7 @@ function* getAllUsersWorker():any {
 
 function* updateUserWorker():any {
   try {
-    const stateUser = yield select((state) => state.userReducer);
+    const stateUser = yield select((state: AppState) => state.userReducer);
     
     const res = yield* callApi(patchUser, {
       'quest': stateUser.quest,
@@ -68,23 +72,51 @@ function* updateUserWorker():any {
 
 function* getUserWorker():any {
   try {
-    const address = yield getStorage('current_account');
+    const user = yield select((state: AppState) => state.userReducer);
+    const addressStorage = yield getStorage('current_account');
+    const isSignIn = !!user.user;
+
+    // try sign in from storage or try to sign up or just refresh ?
+    const address = user.address ? user.address : addressStorage;
     if (!address)
-      return false;
+      throw new Error('No address found.')
 
     const res = yield* callApi(getUser, {
       address
     });
-    yield put(getUserSuccess(res));
+    yield put(getUserSuccess(!res || !res.user ? { user: { address } } : res));
+    // lets save
+    yield storageData("current_account", address);
+    if (user.walletType)
+      yield storageData("current_wallet", user.walletType);
+    if (user.jwt)
+      yield storageData("current_jwt", user.jwt);
+
+    // account exist
+    //if (res && res.user)
+    yield put(getAccount({ address }));
+
+    // get info from xrpl
+    yield put(getTokens({ address: address }));
+    yield put(getTx({ address }));
+
+    // get info from server uris
+    yield put(getUris({ address }));
+    
+    //if (!isSignIn)
+    yield put(push("/profile"));
   } catch (error) {
-    yield put(getUserFailure(error));
+    if (error.message)
+      yield put(getUserFailure({ errorMsg: error.message }));
+    else
+      yield put(getUserFailure(error));
     yield rmStorage("current_account");
   }
 }
 
 function* createUserWorker():any {
   try {
-    const user = yield select((state) => state.userReducer);
+    const user = yield select((state: AppState) => state.userReducer);
     
     // check valide Address
     const resTokens = yield* callApi(getTokensXRPL, {
@@ -95,6 +127,7 @@ function* createUserWorker():any {
     const res = yield* callApi(register, {
       name: user.name,
       address: user.address,
+      profile: user.profile,
       location: user.location,
     });
 

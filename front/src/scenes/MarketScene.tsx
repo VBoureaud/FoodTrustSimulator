@@ -23,7 +23,6 @@ import SelectField from "@components/SelectField";
 import LocationFieldSet from "@components/LocationFieldSet";
 
 import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
@@ -31,7 +30,7 @@ import Typography from '@mui/material/Typography';
 import CircularProgress from "@mui/material/CircularProgress";
 import SearchIcon from '@mui/icons-material/Search';
 
-import { Profile } from "@components/ProfileChooser";
+import { Profile } from "@components/ProfileCreator";
 
 
 type Props = {
@@ -51,7 +50,7 @@ const MarketScene: React.FC<Props> = (props) => {
   const [searchType, setSearchType] = useState('name');
 
   useEffect(() => {
-    if (!stateUser.user) {
+    if (!stateUser.user || !stateUser.user.name) {
       setRedirctTo(true);
     } else if (!stateUser.users 
       && !stateUser.loadingGetAll
@@ -144,7 +143,7 @@ const MarketScene: React.FC<Props> = (props) => {
                 markerOffset: 15,
                 name: elt.name,
                 coordinates: [ elt.location.lng, elt.location.lat ],
-              }))} 
+              }))}
           />
         </Container>
       </div>

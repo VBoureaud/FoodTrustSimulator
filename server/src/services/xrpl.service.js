@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
 const fetch = require('node-fetch');
+const xrpl = require('xrpl');
 const config = require('../config');
 const ApiError = require('../utils/ApiError');
 
@@ -9,7 +10,26 @@ const ApiError = require('../utils/ApiError');
  * @returns {Promise<Account_NFTS>}
  */
 const getAccountNFTS = async (address) => {
-  const body = {
+  try {
+    const client = new xrpl.Client(config.xrplUrl);
+    await client.connect()
+
+    const nfts = await client.request({
+      method: "account_nfts",
+      account: address
+    })
+
+    client.disconnect()
+
+    if (nfts && nfts.result && nfts.result.account_nfts)
+      return nfts.result.account_nfts;
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Account_Nfts not found');
+  } catch (error) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Account_Nfts not found');
+  }
+
+  // HTTP CALLs
+  /*const body = {
       "method": "account_nfts",
       "params": [{
           "account": address,
@@ -34,7 +54,7 @@ const getAccountNFTS = async (address) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Account_Nfts not found');
   } catch (error) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Account_Nfts not found');
-  }
+  }*/
 };
 
 /**
@@ -43,7 +63,23 @@ const getAccountNFTS = async (address) => {
  * @returns {Promise<OffersNFT>}
  */
 const getOffersNFT = async (tokenid) => {
-  const body = {
+  try {
+    const client = new xrpl.Client(config.xrplUrl);
+    await client.connect();
+    const nftBuyOffers = await client.request({
+        method: "nft_buy_offers",
+        nft_id: tokenid
+      });
+    if (nftBuyOffers && nftBuyOffers.result)
+        return nftBuyOffers.result.offers;
+    throw new ApiError(httpStatus.BAD_REQUEST, 'TokenId not found');
+  } catch (error) {
+    //console.log({ error });
+    return [];
+  }
+
+  // HTTPs calls
+  /*const body = {
       "method": "nft_buy_offers",
       "params": [{
         "nft_id": tokenid,
@@ -67,7 +103,7 @@ const getOffersNFT = async (tokenid) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'TokenId not found');
   } catch (error) {
     return [];
-  }
+  }*/
 };
 
 module.exports = {

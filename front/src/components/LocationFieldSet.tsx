@@ -5,9 +5,10 @@ import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 
 type LocationFieldsetProps = {
-	onChange?: Function;
+  onChange?: Function;
   url?: string;
   background?: string;
+  defaultValue?: City;
 };
 
 type ValueMemoization = {
@@ -72,7 +73,7 @@ const LocationFieldSet : React.FunctionComponent<LocationFieldsetProps> = (props
   }
 
   return (
-  	<Autocomplete
+    <Autocomplete
       open={open}
       onOpen={() => {
         setOpen(true);
@@ -80,7 +81,8 @@ const LocationFieldSet : React.FunctionComponent<LocationFieldsetProps> = (props
       onClose={() => {
         setOpen(false);
       }}
-      filterOptions={(x) => x}//To search as you type
+      value={props.defaultValue}
+      filterOptions={x => x}//To search as you type
       getOptionLabel={(option: City) => option.index + ' ' + option.name + ' (' + option.country + ')'}
       id="autocomplete-location"
       options={options}
@@ -95,7 +97,7 @@ const LocationFieldSet : React.FunctionComponent<LocationFieldsetProps> = (props
         minWidth: '235px',
         background: props.background ? props.background : "#363636",
       }}
-    	renderInput={(params) => (
+      renderInput={(params) => (
         <TextField
           {...params}
           label="Location"
