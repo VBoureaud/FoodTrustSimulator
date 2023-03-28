@@ -1,5 +1,7 @@
 ![Banner](./front/assets/images/banner.png)
 
+/!\ Work in progress. Discover soon beta version, including the milestone of the XRPL Grant 2022.
+
 # FoodTrust Simulator XRPL
 
 A project developed during XRPL Hackathon 2022, which attempts to illustrate the interactions and traceability around the food sphere in a blockchain ecosystem proposed by XRPL.
