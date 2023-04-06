@@ -1,7 +1,87 @@
+@typeFarmer: './Profile/assets/metier/fermier_38.png';
+@typeCook: './Profile/assets/metier/cuisto_38.png';
+@typeManager: './Profile/assets/metier/marchant_38.png';
+
 body {
     background: url('@assets/images/background.jpg') no-repeat center bottom fixed; 
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+    height: 100vh;
+}
+
+.backgroundGrey {
+    background: #34312e;
+}
+
+.backgroundDark {
+    background: black;
+}
+
+
+@keyframes AnimateBG { 
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@keyframes morph {
+  0% { background-color: red; }
+  33% { background-color: green; }
+  66% { background-color: blue; }
+  100% { background-color: red; }
+}
+.backgroundAnimation {
+    animation: morph 9s infinite;
+}
+.backgroundAnimation2 {
+    background-size: 300% 300%;
+    background-image: linear-gradient(
+        -45deg, 
+        rgba(59,173,227,1) 0%, 
+        rgba(87,111,230,1) 25%, 
+        #576fe6 51%, 
+        rgba(255,53,127,1) 100%
+    );  
+    animation: AnimateBG 20s ease infinite;
+}
+.moreIconResponsive {
+    display: flex;
+    justify-content: center;
+    margin-top: 63px;
+}
+
+@media only screen and (max-width: 720px) {
+    .moreIconResponsive {
+        display: none;
+    }
+}
+
+.avatarNavbarContainer {
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+    background-color: black;
+    position: relative;
+    z-index: 1;
+}
+
+.avatarNavbar {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+}
+
+.type_farmer_navbar {
+    background: url("@{typeFarmer}") no-repeat center center;
+    background-size: 22px;
+}
+.type_manager_navbar {
+    background: url("@{typeManager}") no-repeat center center;
+    background-size: 22px;
+}
+.type_cook_navbar {
+    background: url("@{typeCook}") no-repeat center center;
+    background-size: 22px;
 }

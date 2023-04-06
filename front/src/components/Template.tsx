@@ -6,11 +6,15 @@ import ResponsiveAppBar from "./ResponsiveAppBar";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import './Template.less';
 
+import {
+  User,
+} from '@store/types/UserTypes';
 
-function Footer(props: any) {
+export const Footer = (props: any) => {
   return (
-    <Box color="white" {...props}>
+    <Box color="white" {...props} sx={{ position: 'relative', zIndex: 2, marginTop: '32px', marginBottom: 0, paddingBottom: '32px'}}>
       <Typography align="center" variant="body2">
         Developed and designed by <a href="https://github.com/VBoureaud/">@VBoureaud</a>
       </Typography>
@@ -29,16 +33,17 @@ type TemplateType = {
   isLogged: boolean;
   logout?: Function;
   noContainer?: boolean;
+  className?: string;
+  user?: User;
 }
-
-import './Template.less';
 
 const Template : React.FunctionComponent<TemplateType> = (props) => {
   return (
-    <div className="background">
+    <div className={props.className ? props.className : "background"}>
       <ResponsiveAppBar
         isLogged={props.isLogged}
         logout={props.logout}
+        user={props.user}
       />
       {!props.noContainer && <Container maxWidth="lg" sx={{ mt: 5 }}>
         {props.children}

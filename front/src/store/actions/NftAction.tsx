@@ -7,50 +7,50 @@ import {
   GetOffersPayload,
   OffersPayload,
   GetOffersFailurePayload,
-
-  GetHistoryPayload,
-  GetHistory,
-  HistoryPayload,
-  GetHistorySuccess,
-  GetHistoryFailurePayload,
-  GetHistoryFailure,
+  GetParents,
+  GetParentsSuccess,
+  GetParentsFailure,
+  GetParentsPayload,
+  GetParentsSuccessPayload,
+  GetParentsFailurePayload,
 } from "../types/NftTypes";
 
 
 export function getOffers(data: GetOffersPayload): GetOffers {
   return {
-    type: TYPES_NFT.GET_OFFERS,
+    type: TYPES_NFT['GET_OFFERS'],
     payload: data,
   };
 }
 export function getOffersSuccess(data: OffersPayload): GetOffersSuccess {
   return {
-    type: TYPES_NFT.GET_OFFERS_SUCCESS,
+    type: TYPES_NFT['GET_OFFERS_SUCCESS'],
     payload: data,
   };
 }
 export function getOffersFailure(data: GetOffersFailurePayload): GetOffersFailure {
   return {
-    type: TYPES_NFT.GET_OFFERS_FAILURE,
+    type: TYPES_NFT['GET_OFFERS_FAILURE'],
     payload: data,
   };
 }
 
-export function getHistory(data: GetHistoryPayload): GetHistory {
+// get parents tree from an Uri
+export function getParents(data: GetParentsPayload): GetParents {
   return {
-    type: TYPES_NFT['GET_HISTORY'],
+    type: TYPES_NFT['GET_PARENTS'],
     payload: data,
-  }
+  };
 };
-export function getHistorySuccess(data: HistoryPayload): GetHistorySuccess {
+export function getParentsSuccess(data: GetParentsSuccessPayload): GetParentsSuccess {
   return {
-    type: TYPES_NFT['GET_HISTORY_SUCCESS'],
+    type: TYPES_NFT['GET_PARENTS_SUCCESS'],
     payload: data,
-  }
+  };
 };
-export function getHistoryFailure(data: GetHistoryFailurePayload): GetHistoryFailure {
+export function getParentsFailure(data: GetParentsFailurePayload): GetParentsFailure {
   return {
-    type: TYPES_NFT['GET_HISTORY_FAILURE'],
+    type: TYPES_NFT['GET_PARENTS_FAILURE'],
     payload: data,
-  }
+  };
 };

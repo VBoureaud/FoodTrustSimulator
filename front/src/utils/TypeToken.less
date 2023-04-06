@@ -4,14 +4,21 @@
 }
 
 // Farmer
-each(range(27), {
+each(range(28), {
   .type@{value} {
   	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
 	  background-size: 190px;
   }
 });
 // Cook
-each(range(1000, 1000), {
+each(range(1000, 1005), {
+  .type@{value} {
+  	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
+	  background-size: 190px;
+  }
+});
+// Manager
+each(range(2000, 2001), {
   .type@{value} {
   	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
 	  background-size: 190px;
@@ -23,14 +30,21 @@ each(range(1000, 1000), {
 	width: 100px;
 }
 // Farmer
-each(range(27), {
+each(range(28), {
   .middleType@{value} {
   	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
 	  background-size: 50px;
   }
 });
 // Cook
-each(range(1000, 1000), {
+each(range(1000, 1005), {
+  .middleType@{value} {
+  	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
+	  background-size: 50px;
+  }
+});
+// Manager
+each(range(2000, 2001), {
   .middleType@{value} {
   	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
 	  background-size: 50px;
@@ -42,16 +56,120 @@ each(range(1000, 1000), {
 	width: 40px;
 }
 // Farmer
-each(range(27), {
+each(range(28), {
   .minType@{value} {
   	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
 	  background-size: 20px;
   }
 });
 // Cook
-each(range(1000, 1000), {
+each(range(1000, 1005), {
   .minType@{value} {
   	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
 	  background-size: 20px;
   }
 });
+// Manager
+each(range(2000, 2001), {
+  .minType@{value} {
+  	background: url('@assets/images/typeTokens/@{value}.png') no-repeat center center; 
+	  background-size: 20px;
+  }
+});
+
+.avatarToken {
+	border-radius: 50%;
+	overflow: hidden;
+	background: #faf8eb;
+	color: #FFF;
+}
+.ownToken {
+	border: 1px solid #d5a3a3;
+	border-radius: 50%;
+}
+.buyToken {
+	border: 1px solid #478839;
+	border-radius: 50%;
+}
+.notValid {
+	background: #8080804d;
+}
+
+.expired {
+	background: tomato;
+	color: white;
+	position: absolute;
+	top: 20px;
+	left: -10px;
+	padding: 5px 10px;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	font-weight: bold;
+}
+.powerDisplay {
+	cursor: pointer;
+	position: absolute;
+	bottom: 0px;
+	right: 20px;
+	font-size: 22px;
+}
+
+.hexagon {
+  position: relative;
+	/*width: 2em;
+	height: 3.1em;*/
+	width: 35px;
+	height: 50px;
+	border-radius: 10px;
+	display: inline-block;
+	transition: all 0.2s ease;
+}
+.hexagon:before {
+  transform: rotate(60deg);
+  position: absolute;
+	width: inherit;
+	height: inherit;
+	border-radius: inherit;
+	background: inherit;
+	content: "";
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+}
+.hexagon:after {
+	transform: rotate(-60deg);
+	position: absolute;
+	width: inherit;
+	height: inherit;
+	border-radius: inherit;
+	background: inherit;
+	content: "";
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+}
+.hexagonYellow {
+	background: linear-gradient(to bottom right, #ffeb3b 0%, #fbc02d 100%);
+	color: #ffb300;
+}
+.hexagonContent {
+	width: 36px;
+	height: 36px;
+	position: absolute;
+	z-index: 10;
+	border-radius: 50%;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 34px;
+}

@@ -1,20 +1,67 @@
 const mongoose = require('mongoose');
 const { toJSON, paginate } = require('./plugins');
 
+const userAd = mongoose.Schema({
+  date: {
+    type: String,
+    required: true,
+  },
+  user: {
+    type: String,
+    required: true,
+  },
+  message: {
+    type: String,
+    required: true,
+  },
+  duree: {
+    type: Number,
+    default: 24 * 60 * 60000, // 24 hours to milliseconds
+  },
+});
+
+const userQuest = mongoose.Schema({
+  id: {
+    type: Number,
+    required: true,
+  },
+  date: {
+    type: String,
+    required: true,
+  },
+  winDate: {
+    type: String,
+    default: '',
+  },
+  tokenNeeded: {
+    type: [ String ],
+    required: true,
+  },
+});
+
 const userSchema = mongoose.Schema({
     name: {
       type: String,
       required: true,
       trim: true,
     },
-    profile: {
+    type: { // farmer - cook - manager
       type: String,
       default: null,
     },
-    address: {
+    image: { //concatenation of id for slider
+      type: String,
+      default: '0-0-0-0-0-0-0-0-0-0',
+      //required: true,
+    },
+    address: { // xrpl addr
       type: String,
       required: true,
       unique: true,
+    },
+    server: { // where the xrpl addr is linked
+      type: String,
+      required: true,
     },
     experience: {
       type: Number,
@@ -35,7 +82,13 @@ const userSchema = mongoose.Schema({
       type: [ String ],
       default: [],
     },
-    tokenNeeded: {
+    lastCo: {
+      type: String,
+      default: null,
+    },
+    quest: [userQuest],
+    ad: [userAd],
+    burnout: {
       type: [ String ],
       default: [],
     },

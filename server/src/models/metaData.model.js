@@ -2,6 +2,30 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const { toJSON, paginate } = require('./plugins');
 
+// Ex:
+/*
+  created;date;user;null
+  sell;date;user;10
+  destroyed;date;user;null
+*/
+const metaDataHistory = mongoose.Schema({
+  action: {
+    type: String,
+    required: true,
+  },
+  date: {
+    type: String,
+    required: true,
+  },
+  user: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: String,
+  },
+});
+
 // Metadata Structure XLS-20d NFTs - Based on EIP-1155
 const metaDataSchema = mongoose.Schema(
   {
@@ -25,23 +49,41 @@ const metaDataSchema = mongoose.Schema(
         type: String,
         required: true,
       },
-      ownerHistory: {
-        type: [ String ],
-        default: [],
-      },
+      history: [metaDataHistory],
       nftToken: {
         type: String,
         required: true,
         unique: true,
       },
       offerBuy: {
-        type: [ String ],
+        type: [ String ], // address_price
         default: [],
       },
-      parents: {
+      offerSell: {
+        type: [ String ], // address_price
+        default: [],
+      },
+      parents: { // [ metaData.name, ... ]
         type: [ String ],
         default: []
       },
+      durability: { // day available - if 0: infinity
+        type: Number,
+        default: 10,
+      },
+      power: { // power you can win if you eat it
+        type: Number,
+        default: 1,
+      },
+      details: { // empty field for details - ex recipe: typeIng1;typeIng2;typeIng3
+        type: String,
+        default: '',
+      },
+    },
+    validity: {
+      type: Boolean,
+      default: true,
+      required: true,
     },
   },
   {

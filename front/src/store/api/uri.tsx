@@ -4,11 +4,11 @@ import {
 	RegisterUriPayload,
 	GetUrisPayload,
 	UpdateUrisPayload,
+	DeleteUriPayload,
 } from "@store/types/UriTypes";
 import { 
-	GetHistoryPayload,
+	GetParentsPayload,
 } from "@store/types/NftTypes";
-
 
 export const registerUri = async (data: RegisterUriPayload)  => {
 	try {
@@ -35,14 +35,13 @@ export const queryUris = (data: GetUrisPayload) => {
   );
 };
 
-export const updateUri = async (data: UpdateUrisPayload)  => {
+export const deleteUri = async (data: DeleteUriPayload)  => {
 	try {
   	const res = await buildRequest(
-	    apiServer.updateUri.url + data.name,
-	    apiServer.updateUri.method,
+	    apiServer.deleteUri.url + data.name_to_delete,
+	    apiServer.deleteUri.method,
 	    {
 	    	owner: data.owner,
-	    	offerBuy: data.offerBuy,
 	    },
 	  );
 		return res;
@@ -51,10 +50,31 @@ export const updateUri = async (data: UpdateUrisPayload)  => {
 	}
 };
 
+export const updateUri = async (data: UpdateUrisPayload)  => {
+	try {
+  	const res = await buildRequest(
+	    apiServer.updateUri.url + data.name,
+	    apiServer.updateUri.method,
+	    {
+	    	owner: data.owner,
+	    	offer: data.offer,
+	    	action: data.action,
+	    },
+	  );
+		return res;
+	} catch (error) {
+		throw new Error(error);
+	}
+};
 
-export const getHistory = (data: GetHistoryPayload) => {
-  return buildRequest(
-    apiServer.getHistory.url + '/' + data.tokenId,
-    apiServer.getHistory.method,
-  );
+export const getParents = async (data: GetParentsPayload)  => {
+	try {
+  	const res = await buildRequest(
+	    apiServer.getParents.url + data.name,
+	    apiServer.getParents.method,
+	  );
+		return res;
+	} catch (error) {
+		throw new Error(error);
+	}
 };

@@ -23,7 +23,8 @@ test("POST /v1/uri - after mint a nftToken", async () => {
   const userData = {
     "name": "Xoer54",
     "address": config.testAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const user = await User.create(userData);
 
@@ -46,7 +47,7 @@ test("POST /v1/uri - after mint a nftToken", async () => {
       expect(response.body.uri.properties).toBeTruthy();
       expect(response.body.uri.properties.owner).toBe(userData.address);
       expect(response.body.uri.properties.nftToken).toBe(uriData.nftToken);
-      expect(response.body.uri.properties.ownerHistory.length).toBe(0);
+      expect(response.body.uri.properties.history.length).toBe(1);
       
       // Check data in the database
       const metaData = await MetaData.findOne({ _id: response.body.uri.id });
@@ -56,7 +57,7 @@ test("POST /v1/uri - after mint a nftToken", async () => {
       expect(metaData.properties).toBeTruthy();
       expect(metaData.properties.owner).toBe(userData.address);
       expect(metaData.properties.nftToken).toBe(uriData.nftToken);    
-      expect(metaData.properties.ownerHistory.length).toBe(0);
+      expect(metaData.properties.history.length).toBe(1);
       
       const userUpdated = await User.findOne({ _id: user.id });
       expect(userUpdated).toBeTruthy();
@@ -69,7 +70,8 @@ test("GET /v1/uri", async () => {
   const userData = {
     "name": "Xoer54",
     "address": config.testAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const user = await User.create(userData);
 
@@ -85,7 +87,6 @@ test("GET /v1/uri", async () => {
     image: type,
     properties: {
       owner: config.testAddressXRPL,
-      ownerHistory: [],
       nftToken: uriData.nftToken,
       offerBuy: [],
       parents: [],
@@ -126,12 +127,14 @@ test("PATCH /v1/uri/:name - change owner", async () => {
   const userData = {
     "name": "FunnyGuy",
     "address": config.testAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const userSecondData = {
     "name": "Xoer542",
     "address": config.testSecondAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const user1 = await User.create(userData);
   const user2 = await User.create(userSecondData);
@@ -149,14 +152,13 @@ test("PATCH /v1/uri/:name - change owner", async () => {
     image: type,
     properties: {
       owner: userSecondData.address,
-      ownerHistory: [ ],
       nftToken: uriData.nftToken,
       offerBuy: [ userData.address ],
       parents: [],
     },
   });
 
-  // Update, TOKEN belong to user1 now
+  // Update, TOKEN belong to user1 now - todo history check
   const uriPatchData = {
     "owner": userData.address,
   };
@@ -171,8 +173,6 @@ test("PATCH /v1/uri/:name - change owner", async () => {
       expect(response.body.uri.image).toBe(type);
       expect(response.body.uri.properties).toBeTruthy();
       expect(response.body.uri.properties.owner).toBe(uriPatchData.owner);
-      expect(response.body.uri.properties.ownerHistory.length).toBe(1);
-      expect(response.body.uri.properties.ownerHistory).toEqual([ userSecondData.address ]);
       expect(response.body.uri.properties.offerBuy.length).toBe(0);
       
       // Check data in the database
@@ -182,9 +182,7 @@ test("PATCH /v1/uri/:name - change owner", async () => {
       expect(metaData.image).toBe(type);
       expect(metaData.properties).toBeTruthy();
       expect(metaData.properties.owner).toBe(uriPatchData.owner);
-      expect(metaData.properties.ownerHistory.length).toBe(1);
       // get a CoreMongooseArray, need to trad to string
-      expect(...metaData.properties.ownerHistory).toBe(userSecondData.address);
       expect(metaData.properties.offerBuy.length).toBe(0);
 
       // Check Updated Users
@@ -200,12 +198,14 @@ test("PATCH /v1/uri/:name - add offerBuy", async () => {
   const userData = {
     "name": "FunnyGuy",
     "address": config.testAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const userSecondData = {
     "name": "Xoer542",
     "address": config.testSecondAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const user1 = await User.create(userData);
   const user2 = await User.create(userSecondData);
@@ -223,7 +223,6 @@ test("PATCH /v1/uri/:name - add offerBuy", async () => {
     image: type,
     properties: {
       owner: userData.address,
-      ownerHistory: [ ],
       nftToken: uriData.nftToken,
       offerBuy: [],
       parents: [],
@@ -234,6 +233,7 @@ test("PATCH /v1/uri/:name - add offerBuy", async () => {
   const uriPatchData = {
     "offerBuy": userSecondData.address,
   };
+
   await supertest(app).patch("/v1/uri/" + uriData.name)
     .send(uriPatchData)
     .expect(200)
@@ -245,7 +245,7 @@ test("PATCH /v1/uri/:name - add offerBuy", async () => {
       expect(response.body.uri.image).toBe(type);
       expect(response.body.uri.properties).toBeTruthy();
       expect(response.body.uri.properties.offerBuy).toEqual([ userSecondData.address ]);
-      
+
       // Check data in the database
       const metaData = await MetaData.findOne({ _id: response.body.uri.id });
       expect(metaData).toBeTruthy();
@@ -260,12 +260,14 @@ test("PATCH /v1/uri/:name - rm offerBuy", async () => {
   const userData = {
     "name": "FunnyGuy",
     "address": config.testAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const userSecondData = {
     "name": "Xoer542",
     "address": config.testSecondAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const user1 = await User.create(userData);
   const user2 = await User.create(userSecondData);
@@ -283,7 +285,6 @@ test("PATCH /v1/uri/:name - rm offerBuy", async () => {
     image: type,
     properties: {
       owner: userData.address,
-      ownerHistory: [ ],
       nftToken: uriData.nftToken,
       offerBuy: [ userSecondData.address ],
       parents: [],
@@ -319,7 +320,8 @@ test("PATCH /v1/uri/:name - fail offerBuy", async () => {
   const userData = {
     "name": "FunnyGuy",
     "address": config.testAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const user1 = await User.create(userData);
 
@@ -336,7 +338,6 @@ test("PATCH /v1/uri/:name - fail offerBuy", async () => {
     image: type,
     properties: {
       owner: userData.address,
-      ownerHistory: [ ],
       nftToken: uriData.nftToken,
       offerBuy: [ userData.address ],
       parents: [],
@@ -356,12 +357,14 @@ test("GET /v1/uri/history/:tokenId - get History details", async () => {
   const userData = {
     "name": "FunnyGuy",
     "address": config.testAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const userSecondData = {
     "name": "Xoer542",
     "address": config.testSecondAddressXRPL,
-    "profile": "",
+    "type": "",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const user1 = await User.create(userData);
   const user2 = await User.create(userSecondData);
@@ -379,7 +382,6 @@ test("GET /v1/uri/history/:tokenId - get History details", async () => {
     image: type,
     properties: {
       owner: userData.address,
-      ownerHistory: [ config.testSecondAddressXRPL ],
       nftToken: uriData.nftToken,
       offerBuy: [ userData.address ],
       parents: [],

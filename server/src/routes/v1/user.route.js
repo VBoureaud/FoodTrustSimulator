@@ -7,6 +7,7 @@ const router = express.Router();
 
 router
   .route('/')
+  .get(validate(userValidation.getUser), userController.getUser)
   .post(validate(userValidation.addOne), userController.addOne);
 
 router
@@ -15,9 +16,17 @@ router
 
 router
   .route('/:address')
-  .get(validate(userValidation.getOne), userController.getOne)
+  .get(validate(userValidation.getUser), userController.getUser)
   .patch(validate(userValidation.updateOne), userController.updateOne)
   .delete(validate(userValidation.deleteOne), userController.deleteOne);
+
+router
+  .route('/createAd/:address')
+  .post(validate(userValidation.createAd), userController.createAd)
+
+router
+  .route('/logout/:address/:server')
+  .get(validate(userValidation.logoutUser), userController.logoutUser)
 
 module.exports = router;
 
@@ -44,15 +53,22 @@ module.exports = router;
  *             required:
  *               - name
  *               - address
- *               - profile
+ *               - type
+ *               - image
+ *               - location
+ *               - server
  *             properties:
  *               name:
  *                 type: string
  *               address:
  *                 type: string
  *                 description: xrp address
- *               profile:
+ *               type:
  *                 type: string
+ *                 description: type of player (farmer-cook-manager)
+ *               image:
+ *                 type: string
+ *                 description: concatenation of id for image creation
  *               location:
  *                 type: Object
  *                 properties: 
@@ -62,16 +78,21 @@ module.exports = router;
  *                     type: string
  *                   lng:
  *                     type: string
+ *               server:
+ *                 type: string
+ *                 description: nft server where user has be created on-chain
  *             example:
  *               name: "Xoer54"
  *               address: "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb"
- *               profile: ""
+ *               type: "farmer"
+ *               image: "1-1-1-1-1-1-1-1-1-1"
  *               location: {
  *                 name: 'Kyiv',
  *                 lat: '50.45466',
  *                 lng: '30.5238',
  *                 country: 'UA',
  *               }
+ *               server: 'Testnet'
  *    responses: 
  *      "200":
  *        description: Ok
@@ -90,6 +111,40 @@ module.exports = router;
 
  /**
  * @swagger
+ * /user?address={address}&server={server}:
+ *   get:
+ *     summary: Get user
+ *     description: Get informations for one user.
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: server
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Server url
+ *         example: '"wss://hooks-testnet-v2.xrpl-labs.com"'
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/User'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ * 
+ */
+ 
+ /**
+ * @swagger
  * /user/{address}:
  *   get:
  *     summary: Get user
@@ -101,7 +156,13 @@ module.exports = router;
  *         required: true
  *         schema:
  *           type: string
- *         description: Address id
+ *       - in: path
+ *         name: server
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Server url
+ *         example: 'wss://hooks-testnet-v2.xrpl-labs.com'
  *     responses:
  *       "200":
  *         description: OK
@@ -136,10 +197,10 @@ module.exports = router;
  *                 type: string
  *               address:
  *                 type: string
- *               profile:
+ *               type:
  *                 type: string
  *             example:
- *               profile: "cooker"
+ *               type: "cook"
  *     responses:
  *       "200":
  *         description: OK
@@ -180,6 +241,50 @@ module.exports = router;
 
 /**
  * @swagger
+ * /user/createAd/{address}:
+ *   post:
+ *     summary: Create an ad
+ *     description: Create an ad from a marchant to an user
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Address id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               address:
+ *                 type: string
+ *               message:
+ *                 type: string
+ *             example:
+ *               address: "ro4skjnrFzNoKqt8FF1Br7roYVm9CKVB4"
+ *               message: "Come and discover my new stock!"
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/Users'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ *
+ */
+
+/**
+ * @swagger
  * /user/all:
  *   get:
  *     summary: get all
@@ -199,4 +304,34 @@ module.exports = router;
  *       "404":
  *         $ref: '#/components/responses/NotFound'
  *
+ */
+
+/**
+ * @swagger
+ * /user/logout/{address}/{server}:
+ *   get:
+ *     summary: Logout user
+ *     description: Logout one user.
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: server
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Server url
+ *         example: 'wss://hooks-testnet-v2.xrpl-labs.com'
+ *     responses:
+ *       "200":
+ *         description: OK
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ * 
  */

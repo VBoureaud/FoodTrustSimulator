@@ -9,14 +9,16 @@ export const TYPES_ACCOUNT = {
   "GET_TOKENS": "@AccountTypes/GET_TOKENS",
   "GET_TOKENS_SUCCESS": "@AccountTypes/GET_TOKENS_SUCCESS",
   "GET_TOKENS_FAILURE": "@AccountTypes/GET_TOKENS_FAILURE",
+  "GET_REMOTE_ACCOUNT": "@AccountTypes/GET_REMOTE_ACCOUNT",
+  "GET_REMOTE_ACCOUNT_SUCCESS": "@AccountTypes/GET_REMOTE_ACCOUNT_SUCCESS",
+  "GET_REMOTE_ACCOUNT_FAILURE": "@AccountTypes/GET_REMOTE_ACCOUNT_FAILURE",
   "GET_REMOTE_TOKENS": "@AccountTypes/GET_REMOTE_TOKENS",
   "GET_REMOTE_TOKENS_SUCCESS": "@AccountTypes/GET_REMOTE_TOKENS_SUCCESS",
   "GET_REMOTE_TOKENS_FAILURE": "@AccountTypes/GET_REMOTE_TOKENS_FAILURE",
   "REFRESH": "@AccountTypes/REFRESH",
   "REFRESH_SUCCESS": "@AccountTypes/REFRESH_SUCCESS",
   "REFRESH_FAILURE": "@AccountTypes/REFRESH_FAILURE",
-  "LOGOUT": "@AccountTypes/LOGOUT",
-  "RESET_REMOTE_TOKENS": "@AccountTypes/RESET_REMOTE_TOKENS",
+  "RESET_REMOTE": "@AccountTypes/RESET_REMOTE",
 };
 
 // Reducer Types
@@ -26,16 +28,16 @@ export type AccountReducerState = {
   errorSignUpMsg: string;
   account?: Account;
   nfts?: Nfts[];
-  transactions?: Transactions[];
-  remote_address: string;
   remote_nfts: Nfts[];
-  remote_name: string;
-  remote_profile: string;
+  remote_account: Account;
   remote_errorMsg: string;
+  transactions?: Transactions[];
   errorAccount: boolean;
   loadingAccount: boolean;
   errorTokens: boolean;
   loadingTokens: boolean;
+  errorRemoteAccount: boolean;
+  loadingRemoteAccount: boolean;
   errorRemoteTokens: boolean;
   loadingRemoteTokens: boolean;
   errorRefresh: boolean;
@@ -81,6 +83,18 @@ export type GetTokensFailure = {
   type: typeof TYPES_ACCOUNT['GET_TOKENS_FAILURE'];
   payload: TokensFailurePayload;
 };
+export type GetRemoteAccount = {
+  type: typeof TYPES_ACCOUNT['GET_REMOTE_ACCOUNT'];
+  payload: GetRemoteAccountPayload;
+};
+export type GetRemoteAccountSuccess = {
+  type: typeof TYPES_ACCOUNT['GET_REMOTE_ACCOUNT_SUCCESS'];
+  payload: RemoteAccountPayload;
+};
+export type GetRemoteAccountFailure = {
+  type: typeof TYPES_ACCOUNT['GET_REMOTE_ACCOUNT_FAILURE'];
+  payload: RemoteAccountFailurePayload;
+};
 export type GetRemoteTokens = {
   type: typeof TYPES_ACCOUNT['GET_REMOTE_TOKENS'];
   payload: GetRemoteTokensPayload;
@@ -93,6 +107,10 @@ export type GetRemoteTokensFailure = {
   type: typeof TYPES_ACCOUNT['GET_REMOTE_TOKENS_FAILURE'];
   payload: RemoteTokensFailurePayload;
 };
+export type ResetRemote = {
+  type: typeof TYPES_ACCOUNT['RESET_REMOTE'];
+  payload: ResetRemotePayload;
+};
 export type Refresh = {
   type: typeof TYPES_ACCOUNT['GET_TOKENS'];
 };
@@ -102,12 +120,6 @@ export type RefreshSuccess = {
 };
 export type RefreshFailure = {
   type: typeof TYPES_ACCOUNT['GET_TOKENS_FAILURE'];
-};
-export type Logout = {
-  type: typeof TYPES_ACCOUNT['LOGOUT'];
-};
-export type ResetRemoteTokens = {
-  type: typeof TYPES_ACCOUNT['RESET_REMOTE_TOKENS'];
 };
 
 // Payload Types
@@ -120,10 +132,15 @@ export type TokensPayload = {
 export type TokensFailurePayload = {
   errorMsg: string;
 };
+export type GetRemoteAccountPayload = {
+};
+export type RemoteAccountPayload = {
+  remote_account?: Account;
+};
+export type RemoteAccountFailurePayload = {
+  remote_errorMsg: string;
+};
 export type GetRemoteTokensPayload = {
-  remote_address: string;
-  remote_name: string;
-  remote_profile: string;
 };
 export type RemoteTokensPayload = {
   remote_nfts?: Nfts[];
@@ -131,8 +148,13 @@ export type RemoteTokensPayload = {
 export type RemoteTokensFailurePayload = {
   remote_errorMsg: string;
 };
+export type ResetRemotePayload = {
+  remote_nfts: null;
+  remote_account: null;
+};
 export type GetAccountPayload = {
   address: string;
+  server?: string;
 };
 export type AccountPayload = {
   account: Account;
@@ -153,14 +175,16 @@ export type Nfts = {
   TokenTaxon: number;
   URI: string;
   nft_serial: string;
+  date?: string;
+  type?: string;
 };
 export type AccountData = {
   Account: string;
   Balance: string;
-  BurnedTokens?: number;
+  BurnedNFTokens?: number;
   Flags: number;
   LedgerEntryType: string;
-  MintedTokens?: number;
+  MintedNFTokens?: number;
   OwnerCount: number;
   PreviousTxnID: string;
   PreviousTxnLgrSeq: number;

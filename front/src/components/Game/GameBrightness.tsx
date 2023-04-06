@@ -19,6 +19,7 @@ type GameBrightnessProps = {
     onVictory?: Function;
     canPlay?: boolean;
     onLaunch?: Function;
+    tokenName?: string;
 };
 
 const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => {
@@ -45,7 +46,7 @@ const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => 
         let timeout: ReturnType<typeof setTimeout>;
         timeout = setTimeout(() => {
           setStep(0);
-        }, 5000);
+        }, 3500);
 
         // like componentDidUnMount
         return () => clearTimeout(timeout);
@@ -67,6 +68,7 @@ const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => 
         let img: any;
         let radius = 15;
         let xCircle: number, yCircle: number;
+        let drawTime: number = 0;
 
         function preload() {
           // load the original image
@@ -88,6 +90,7 @@ const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => 
         }
 
         p.draw = () => {
+            drawTime = drawTime + 1;
             p.image(img,0,0);
             // Only need to load the pixels[] array once, because we're only
             // manipulating pixels[] inside draw(), not drawing shapes.
@@ -125,7 +128,7 @@ const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => 
             }
             p.updatePixels();
 
-            if (img && img.width) {
+            if (img && img.width && drawTime > 100) {
                 p.fill(0);
                 p.ellipse(xCircle, yCircle, radius, radius);
             }
@@ -144,7 +147,7 @@ const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => 
         if (props.canPlay)
             setStep(1);
         if (props.onLaunch)
-            props.onLaunch();
+            props.onLaunch(true);
     };
     
     return (
@@ -153,7 +156,7 @@ const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => 
                 <Box onClick={handleLaunch}>
                     <Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play</Typography>
                     {props.cost && <Typography variant="h6">Cost estimated {props.cost} XRP</Typography>}
-                    <Typography variant="body1">Find the intruder.</Typography>
+                    <Typography variant="body1"><b>Brightness Game</b> - Find a black dot in the picture to win{props.tokenName ? ' a ' + props.tokenName : ''}.</Typography>
                 </Box>}
             {step == 1 &&
                 <Box ref={containDiv} sx={{ width: '100%' }}>
@@ -162,7 +165,7 @@ const GameBrightness: React.FunctionComponent<GameBrightnessProps> = (props) => 
                 </Box>}
             {step == 2 && <Box>
                 <Typography variant="h2" sx={{ cursor: 'pointer' }}>You Win!</Typography>
-                <CircularProgress sx={{ display: 'block', margin: 'auto', color: "white" }} />
+                <CircularProgress sx={{ display: 'block', margin: 'auto', color: "black" }} />
             </Box>}    
         </Box>
     )

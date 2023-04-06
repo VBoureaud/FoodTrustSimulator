@@ -8,9 +8,13 @@ import {
   GetTokensPayload,
   TokensPayload,
   TokensFailurePayload,
+  GetRemoteAccountPayload,
+  RemoteAccountPayload,
+  RemoteAccountFailurePayload,
   GetRemoteTokensPayload,
   RemoteTokensPayload,
   RemoteTokensFailurePayload,
+  ResetRemotePayload,
 } from "../types/AccountTypes";
 
 import {
@@ -26,18 +30,18 @@ const defaultState: AccountReducerState = {
   errorSignUpMsg: '',
   account: null,
   nfts: null,
-  transactions: null,
-  remote_address: '',
-  remote_name: '',
-  remote_profile: '',
+  remote_account: null,
   remote_nfts: null,
   remote_errorMsg: '',
+  transactions: null,
   loadingAccount: false,
   errorAccount: false,
   loadingTokens: false,
   errorTokens: false,
   loadingRefresh: false,
   errorRefresh: false,
+  errorRemoteAccount: false,
+  loadingRemoteAccount: false,
   errorRemoteTokens: false,
   loadingRemoteTokens: false,
   errorTx: false,
@@ -147,15 +151,32 @@ export const accountReducer = createReducer(
       loadingRemoteTokens: false,
       errorRemoteTokens: true,
     }),
-    [TYPES_ACCOUNT.LOGOUT]: () => ({
-      ...defaultState
-    }),
-    [TYPES_ACCOUNT.RESET_REMOTE_TOKENS]: (state: AccountReducerState) => ({
+    [TYPES_ACCOUNT.GET_REMOTE_ACCOUNT]: (state: AccountReducerState, payload: GetRemoteAccountPayload) => ({
       ...state,
-      remote_address: '',
-      remote_errorMsg: '',
-      errorRemoteTokens: false,
-      loadingRemoteTokens: false,
+      ...payload,
+      errorMsg: '',
+      loadingRemoteAccount: true,
+      errorRemoteAccount: false,
+    }),
+    [TYPES_ACCOUNT.GET_REMOTE_ACCOUNT_SUCCESS]: (state: AccountReducerState, payload: RemoteAccountPayload) => ({
+      ...state,
+      ...payload,
+      errorMsg: '',
+      loadingRemoteAccount: false,
+      errorRemoteAccount: false,
+    }),
+    [TYPES_ACCOUNT.GET_REMOTE_ACCOUNT_FAILURE]: (state: AccountReducerState, payload: RemoteAccountFailurePayload) => ({
+      ...state,
+      ...payload,
+      address: '',
+      loadingRemoteAccount: false,
+      errorRemoteAccount: true,
+    }),
+    [TYPES_ACCOUNT.RESET_REMOTE]: (state: AccountReducerState, payload: ResetRemotePayload) => ({
+      ...state,
+      ...payload,
+      errorRemoteAccount: false,
+      loadingRemoteAccount: false,
     }),
 
     // Special case
@@ -166,6 +187,11 @@ export const accountReducer = createReducer(
     [TYPES_USER.CREATE_USER_SUCCESS]: (state: AccountReducerState, payload: UserPayload) => ({
       ...state,
       address: payload.user.address,
+    }),
+
+    // reset
+    [TYPES_USER.LOGOUT]: () => ({
+      ...defaultState
     }),
   },
   defaultState

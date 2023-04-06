@@ -13,6 +13,16 @@ const patchUri = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send({ uri });
 });
 
+const deleteUri = catchAsync(async (req, res) => {
+  const uri = await uriService.deleteUri(req.params.name, req.body);
+  res.status(httpStatus.OK).send({ uri });
+});
+
+const parentsUri = catchAsync(async (req, res) => {
+  const ancestor = await uriService.parentsUri(req.params.name);
+  res.status(httpStatus.OK).send({ ancestor });
+});
+
 const queryUris = catchAsync(async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
   let filter = pick(req.query, ['name', 'nftToken', 'address' ]);
@@ -29,14 +39,10 @@ const queryUris = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send({ result });
 });
 
-const historyUri = catchAsync(async (req, res) => {
-  const history = await uriService.historyUri(req.params.tokenId);
-  res.status(httpStatus.OK).send({ history });
-});
-
 module.exports = {
   register,
   patchUri,
+  deleteUri,
+  parentsUri,
   queryUris,
-  historyUri,
 };

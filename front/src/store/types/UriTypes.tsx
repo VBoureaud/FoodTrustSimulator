@@ -10,6 +10,9 @@ export const TYPES_URI = {
   "UPDATE_SUCCESS": "@UriTypes/UPDATE_SUCCESS",
   "UPDATE_FAILURE": "@UriTypes/UPDATE_FAILURE",
   "ADD": "@UriTypes/ADD",
+  "DELETE": "@UriTypes/DELETE",
+  "DELETE_SUCCESS": "@UriTypes/DELETE_SUCCESS",
+  "DELETE_FAILURE": "@UriTypes/DELETE_FAILURE",
 };
 
 // Reducer Types
@@ -17,6 +20,7 @@ export type UriReducerState = {
   uris?: Uri[];
   address?: string;
   name?: string;
+  name_to_delete?: string | null;
   nftToken?: string;
   loading: boolean;
   error: boolean;
@@ -35,6 +39,18 @@ export type GetUrisFailure = {
   type: typeof TYPES_URI['GET_URI_FAILURE'];
   payload: GetUrisFailurePayload;
 };
+export type DeleteUri = {
+  type: typeof TYPES_URI['DELETE'];
+  payload: DeleteUriPayload;
+};
+export type DeleteUriSuccess = {
+  type: typeof TYPES_URI['DELETE_SUCCESS'];
+  payload: DeleteUriSuccessPayload;
+};
+export type DeleteUriFailure = {
+  type: typeof TYPES_URI['DELETE_FAILURE'];
+  payload: DeleteUriFailurePayload;
+};
 // Add new Uri registered
 export type AddUri = {
   type: typeof TYPES_URI['ADD'];
@@ -43,11 +59,11 @@ export type AddUri = {
 
 // Payload Types
 export type UrisPayload = {
-  limit: number;
-  page: number;
+  limit?: number;
+  page?: number;
   results: Uri[];
-  totalPages: number;
-  totalResults: number;
+  totalPages?: number;
+  totalResults?: number;
 };
 export type GetUrisPayload = {
   name?: string;
@@ -63,7 +79,18 @@ export type RegisterUriPayload = {
 export type UpdateUrisPayload = {
   name: string;
   owner?: string;
-  offerBuy?: string;
+  offer?: string;
+  action?: string;
+}
+export type DeleteUriPayload = {
+  name_to_delete?: string;
+  owner?: string;
+}
+export type DeleteUriSuccessPayload = {
+  uri?: Uri;
+}
+export type DeleteUriFailurePayload = {
+  name_to_delete?: string;
 }
 export type AddUriPayload = {
   uri: Uri;
@@ -75,11 +102,23 @@ export type Uri = {
   description: string;
   image: string;
   properties: UriProperties;
+  validity: boolean;
 };
 export type UriProperties = {
   owner: string;
-  ownerHistory?: string[];
   nftToken: string;
   offerBuy?: string[];
+  offerSell?: string[];
   parents?: string[];
+  durability: number;
+  history: UriHistory[];
+  power: number;
+  details: string;
 };
+export type UriHistory = {
+  action: string;
+  date: string;
+  price: string;
+  user: string;
+  userInfo?: any;
+}

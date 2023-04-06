@@ -4,13 +4,16 @@ import {
   GetUrisPayload,
   UrisPayload,
   GetUrisFailurePayload,
+  DeleteUriPayload,
+  DeleteUriSuccessPayload,
+  DeleteUriFailurePayload,
   AddUriPayload,
   Uri,
 } from "../types/UriTypes";
 
 import {
-  TYPES_ACCOUNT,
-} from "../types/AccountTypes";
+  TYPES_USER,
+} from "../types/UserTypes";
 
 import { createReducer, updateArrayOfObjectByRef } from "@utils/helpers";
 
@@ -18,6 +21,7 @@ const defaultState: UriReducerState = {
   uris: null,
   address: null,
   name: null,
+  name_to_delete: null,
   nftToken: null,
   loading: false,
   error: false,
@@ -56,8 +60,34 @@ export const uriReducer = createReducer(
         uris: updated,
       });
     },
+    [TYPES_URI.DELETE]: (state: UriReducerState, payload: DeleteUriPayload) => ({
+      ...state,
+      ...payload,
+      loading: true,
+      error: false,
+    }),
+    [TYPES_URI.DELETE_SUCCESS]: (state: UriReducerState, payload: DeleteUriSuccessPayload) => {
+      const currentUris = state.uris ? state.uris : [];
+      const uri = payload.uri ? [ payload.uri ] : [];
+      const updated = updateArrayOfObjectByRef(currentUris, uri, 'name');
+      
+      return ({
+        ...state,
+        uris: updated,
+        name_to_delete: '',
+        loading: false,
+        error: false,
+      });
+    },
+    [TYPES_URI.DELETE_FAILURE]: (state: UriReducerState, payload: DeleteUriFailurePayload) => ({
+      ...state,
+      ...payload,
+      loading: false,
+      error: true,
+    }),
 
-    [TYPES_ACCOUNT.LOGOUT]: () => ({
+    // reset
+    [TYPES_USER.LOGOUT]: () => ({
       ...defaultState
     }),
   },

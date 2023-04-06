@@ -1,0 +1,381 @@
+@IconeChapeau: './assets/icones/chapeau_gris.png';
+@IconeChaussure: './assets/icones/chaussure_grise.png';
+@IconeNez: './assets/icones/nez_gris.png';
+@IconePantalon: './assets/icones/pantalon_gris.png';
+@IconePeau: './assets/icones/peau_grise.png';
+@IconePull: './assets/icones/pull_gris.png';
+@IconeSourcils: './assets/icones/sourcils_noirs.png';
+@IconeVisage: './assets/icones/accessoire_visage.png';
+@IconeAccessoire: './assets/icones/accessoire.png';
+@IconeSmile: './assets/icones/accessoire_smile.png';
+@cook: './assets/cook.png';
+@cookHappy: './assets/cook_happy.png';
+@farmer: './assets/farmer.png';
+@farmerHappy: './assets/farmer_happy.png';
+@manager: './assets/manager.png';
+@managerHappy: './assets/manager_happy.png';
+@typeFarmer: './assets/metier/fermier_38.png';
+@typeCook: './assets/metier/cuisto_38.png';
+@typeManager: './assets/metier/marchant_38.png';
+@badges: './assets/badges.png';
+
+.IconeCreation.active {
+	filter: sepia(100%) hue-rotate(170deg) saturate(400%);
+	WebkitFilter: sepia(100%) hue-rotate(170deg) saturate(400%);
+}
+.IconeCreation {
+	width: 35px;
+	height: 35px;
+}
+.IconeChapeau {
+	background: url("@{IconeChapeau}");
+	background-size: 35px;
+	transform: rotate(-20deg);
+}
+.IconeChaussure {
+	background: url("@{IconeChaussure}");
+	background-size: 35px;
+}
+.IconePantalon {
+	background: url("@{IconePantalon}");
+	background-size: 35px;
+}
+.IconePeau {
+	background: url("@{IconePeau}");
+	background-size: 35px;
+}
+.IconePull {
+	background: url("@{IconePull}");
+	background-size: 35px;
+}
+.IconeNez {
+	background: url("@{IconeNez}");
+	background-size: 35px;
+	background-repeat: no-repeat;
+}
+.IconeSourcils {
+	background: url("@{IconeSourcils}");
+	background-repeat: no-repeat;
+	background-size: 35px;
+}
+.IconeVisage {
+	background: url("@{IconeVisage}");
+	background-repeat: no-repeat;
+	background-size: 35px;
+}
+.IconeAccessoire {
+	background: url("@{IconeAccessoire}");
+	background-repeat: no-repeat;
+	background-size: 35px;
+}
+.IconeSmile {
+	background: url("@{IconeSmile}");
+	background-repeat: no-repeat;
+	background-size: 35px;
+}
+
+.profileMinImg {
+	height: 220px;
+	width: 200px;
+	margin: auto;
+}
+
+.profileImg {
+	height: 494px;
+	width: 200px;
+	margin: auto;
+}
+.cook {
+	background: url("@{cook}");
+	&:hover {
+		background: url("@{cookHappy}");
+	}
+}
+
+.manager {
+	background: url("@{manager}");
+	background-position: center;
+	&:hover {
+		background: url("@{managerHappy}");
+	}
+}
+
+.farmer {
+	background: url("@{farmer}");
+	background-position: center;
+	&:hover {
+		background: url("@{farmerHappy}");
+	}
+}
+
+.stepper {
+	background: #364254;
+	border-radius: 4px;
+	padding: 10px;
+}
+
+.carousel .control-prev.control-arrow::before {
+	border-right: 8px solid #373737!important;
+}
+.carousel .control-next.control-arrow::before {
+  border-left: 8px solid #373737!important;
+}
+
+@defaultLine: './assets/perso/line_empty_600.png';
+@defaultPerso: './assets/perso/perso_empty_600.png';
+@skins: './assets/perso/skins_600.png';
+@sourcils: './assets/perso/sourcils_600_cropped.png';
+@chapeaux: './assets/perso/chapeaux_600_cropped.png';
+@objface: './assets/perso/objface_600_cropped.png';
+@nez: './assets/perso/nez_600_cropped.png';
+@pullAccessoire: './assets/perso/pullaccessoire_600.png';
+@pull: './assets/perso/pull_600_cropped.png';
+@pantalon: './assets/perso/pantalon_600.png';
+@chaussure: './assets/perso/chaussure_600.png';
+@visage: './assets/perso/visage_600_cropped.png';
+.persoContainer {
+	//background: white;
+	border: '1px solid #dfdddd';
+	border-radius: 5px;
+	text-align: 'center';
+	padding: 3px;
+	margin: 10px auto;
+	width: fit-content;
+	position: relative;
+
+	background: white;
+	border-radius: 20px;
+	border: 1px solid #dfdddd;
+	box-sizing: content-box;
+	width: 350px;
+	min-width: 350px;
+	/*height: 600px; inline */
+	overflow: hidden;
+}
+.persoEmpty {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	background: url("@{defaultPerso}") no-repeat center center white;
+	height: 600px;
+	width: 300px;
+	margin: auto;
+}
+.persoLine {
+	position: absolute;
+	z-index: 3;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	background: url("@{defaultLine}") no-repeat center center;
+	height: 600px;
+	width: 200px;
+	margin: auto;
+}
+.persoSlider {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	height: 600px;
+	width: 300px;
+	margin: auto;
+}
+.persoSliderTop {
+	z-index: 4;
+}
+
+.type_farmer {
+	padding: 27px;
+	background: url("@{typeFarmer}") no-repeat center center;
+	background-size: 38px;
+}
+.type_cook {
+	padding: 27px;
+	background: url("@{typeCook}") no-repeat center center;
+	background-size: 38px;
+}
+.type_manager {
+	padding: 27px;
+	background: url("@{typeManager}") no-repeat center center;
+	background-size: 38px;
+}
+.typeDisplay {
+	color: #ffeded;
+	background: #313938;
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	z-index: 5;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border-radius: 40px;
+}
+.levelDisplay {
+	color: #ffeded;
+	background: #313938;
+	padding: 15px;
+	border-bottom-left-radius: 40px;
+	border-bottom-right-radius: 40px;
+	position: absolute;
+	left: 20px;
+	top: 0;
+	z-index: 5;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.carouselZone {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: 250px;
+}
+.persoZone {
+	position: relative;
+	height: 100%;
+  overflow: hidden;
+}
+each(range(11), {
+  .face@{value} {
+  	background: url('@{visage}') no-repeat center center; 
+		height: 620px;
+  }
+});
+each(range(6), {
+  .skin@{value} {
+  	background: url('@{skins}') no-repeat center center;
+		height: 620px;
+  }
+});
+each(range(8), {
+  .chapeau@{value} {
+  	background: url('@{chapeaux}') no-repeat center center; 
+		height: 620px;
+  }
+});
+each(range(5), {
+  .sourcil@{value} {
+  	background: url('@{sourcils}') no-repeat center center; 
+		height: 620px;
+  }
+});
+each(range(6), {
+  .nez@{value} {
+  	background: url('@{nez}') no-repeat center center; 
+		height: 620px;
+  }
+});
+each(range(7), {
+  .object_face_@{value} {
+  	background: url('@{objface}') no-repeat center center; 
+		height: 620px;
+  }
+});
+each(range(4), {
+  .chaussure@{value} {
+  	background: url('@{chaussure}') no-repeat center center; 
+		height: 620px;
+  }
+});
+each(range(4), {
+  .pantalon@{value} {
+  	background: url('@{pantalon}') no-repeat center center; 
+		height: 620px;
+  }
+});
+each(range(4), {
+  .pull@{value} {
+  	background: url('@{pull}') no-repeat center center; 
+		height: 620px;
+  }
+});
+each(range(4), {
+  .pullAccessoire@{value} {
+  	background: url('@{pullAccessoire}') no-repeat center center; 
+		height: 620px;
+  }
+});
+.persoBtnContainer {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	max-width: 540px;
+	width: 100%;
+	padding: 15px;
+	margin: auto;
+}
+.persoBtnContainer > div > div {
+	background: white;
+	padding: 5px;
+	border-radius: 4px;
+	margin: 2px;
+	cursor: pointer;
+}
+.descriptionPerso {
+	text-align: center;
+	position: relative;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	align-items: center;
+	z-index: 5;
+	max-width: 350px;
+	word-break: break-all;
+}
+
+.badge { 
+	height: 135px;
+	width: 135px;
+	background: url("@{badges}") no-repeat;
+}
+.badge1 {
+  background-position: 0px 0px;
+}
+.badge2 {
+  background-position: -135px 0px;
+}
+.badge3 {
+  background-position: -271px 0px;
+}
+.badge4 {
+  background-position: -404px 0px;
+}
+.badge5 {
+  background-position: -538px 0px;
+}
+.badge6 {
+  background-position: 4px -140px;
+}
+.badge7 {
+  background-position: -132px -140px;
+}
+.badge8 {
+  background-position: -270px -140px;
+}
+.badge9 {
+  background-position: -406px -140px;
+}
+.badge10 {
+  background-position: -541px -138px;
+}
+.badge11 {
+  background-position: -3px -279px;
+}
+.badge12 {
+  background-position: -137px -279px;
+}
+.badge13 {
+  background-position: -275px -279px;
+}
+.badge14 {
+  background-position: -409px -279px;
+}
+.badge15 {
+  background-position: -544px -279px;
+}

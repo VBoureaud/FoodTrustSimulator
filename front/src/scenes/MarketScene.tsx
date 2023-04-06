@@ -6,18 +6,22 @@ import { hot } from 'react-hot-loader';
 import { History } from 'history';
 import { apiServer } from "@config";
 import { levelDisplay } from "@utils/gameEngine";
+import { calculateDistance } from "@utils/helpers";
 
 import { 
   logout,
   getAllUsers,
-  getRemoteTokens,
+  remoteUser,
   getUris,
 } from "@store/actions";
+import { 
+  User,
+} from "@store/types/UserTypes";
+
 
 import { AppState } from "@store/types";
 import Template from "@components/Template";
 import WorldMap from "@components/WorldMap";
-import OpenMarket from "@components/OpenMarket";
 import SearchField from "@components/SearchField";
 import SelectField from "@components/SelectField";
 import LocationFieldSet from "@components/LocationFieldSet";
@@ -29,9 +33,13 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import CircularProgress from "@mui/material/CircularProgress";
 import SearchIcon from '@mui/icons-material/Search';
+import Pagination from '@mui/material/Pagination';
 
-import { Profile } from "@components/ProfileCreator";
+import { PictureCreator } from "@components/Profile";
 
+// Faq Btn
+import { FaqModal } from "@components/Faq";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 type Props = {
   history: History
@@ -44,31 +52,59 @@ const MarketScene: React.FC<Props> = (props) => {
   const stateUri = useSelector((state: AppState) => state.uriReducer);
   const dispatchLogout = compose(dispatch, logout);
   const dispatchGetAllUsers = compose(dispatch, getAllUsers);
-  const dispatchRemoteTokens = compose(dispatch, getRemoteTokens);
+  const dispatchRemoteUser = compose(dispatch, remoteUser);
   const dispatchGetUris = compose(dispatch, getUris);
   const [redirctTo, setRedirctTo] = useState(false);
   const [searchType, setSearchType] = useState('name');
+  const [searchValue, setSearchValue] = useState('');
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = React.useState(20);
+  const [helpBox, setHelpBox] = useState([]);
+
+  // filter on display
+  const [coordMap, setCoordMap] = React.useState(null);
+  const [zoomMap, setZoomMap] = React.useState(1);
+  const [diametreMap, setDiametreMap] = React.useState(300);//radius circle zone
 
   useEffect(() => {
-    if (!stateUser.user || !stateUser.user.name) {
+    if (!stateUser.user || !stateUser.user.name || !stateUser.user.location) {
       setRedirctTo(true);
     } else if (!stateUser.users 
       && !stateUser.loadingGetAll
       && !stateUser.errorGetAll) {
-      dispatchGetAllUsers({ usersPage: 1 });
+      dispatchGetAllUsers({
+        searchValue: '',
+        server: stateUser.server,
+        usersPage: 1,
+      });
     }
-  })
+  });
 
-  const handleProfileCheck = (address: string) => {
-    const user = stateUser.users.results.filter(elt => elt.address == address)[0];
-
-    dispatchRemoteTokens({
-      remote_address: address,
-      remote_name: user.name,
-      remote_profile: user.profile,
+  useEffect(() => {
+    setPage(0);
+    dispatchGetAllUsers({
+      searchValue: '',
+      server: stateUser.server,
+      usersPage: 1,
     });
-    dispatchGetUris({ address });
-    props.history.push('/collection/'+ address)
+  }, []);
+
+  const handleProfileCheck = (user: User) => {
+    dispatchRemoteUser({ userRemote: user });
+    dispatchGetUris({ address: user.address });
+    window.scrollTo(0, 0);
+    props.history.push('/collection/'+ user.address)
+  }
+
+  const handlePagination = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value - 1);
+  };
+
+  const handleFilterGeographic = (marker: string[], coord: number[], zoom: number, diametre: number) => {
+    if (coord === null) return true;
+    const dist = calculateDistance([parseFloat(marker[0]), parseFloat(marker[1])], coordMap, diametre);
+    if (dist > diametre / 3) return false;// todo affinate
+    return true;
   }
 
   const render =
@@ -76,80 +112,194 @@ const MarketScene: React.FC<Props> = (props) => {
       noContainer
       isLogged={!!stateAccount.address}
       logout={dispatchLogout}
-    >     
-      <div style={{ background: '#233044', padding: '20px', minHeight: '300px' }}>
-        <Container sx={{ mb: 1 }}>
-          <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="h6">Buy offer open:</Typography>
-                <OpenMarket
-                  uris={stateUri.uris}
-                  owner={stateAccount.address}
+      user={stateUser.user}
+    >
+      {stateUser.user && stateUser.user.location && <div style={{ 
+        marginBottom: '10px',
+        background: '#233044',
+        minHeight: '300px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        overflowX: 'hidden',
+        /*maxHeight: '712px',*/ }}>
+        {/* Map */}
+        <div style={{ 
+          maxHeight: 'calc(100vh - 70px)',
+          minWidth: '600px',
+          overflow: 'hidden',
+          position: 'relative',
+          flex: 2 }}>
+          <Container>
+            {helpBox && helpBox.length > 0 &&
+              <FaqModal
+                shouldInclude={helpBox}
+                openDelay={0}
+                onClose={() => setHelpBox([])}
+              />}
+
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '15px',
+                left: '15px',
+                zIndex: 2,
+              }}
+              onClick={() => setHelpBox([40])}>
+              <HelpOutlineIcon sx={{ 
+                cursor: 'pointer',
+                display: 'block',
+                color: "#a6b3e3",
+                background: '#3c3c88',
+                borderRadius: '30px',
+              }} />
+            </Box>
+
+            <WorldMap
+              initCenter={stateUser.user && [stateUser.user.location.lng, stateUser.user.location.lat]}
+              onZoomOrMove={
+                (coordinates: number[], zoom: number) => {
+                  setCoordMap(coordinates);
+                  setZoomMap(zoom);
+                }
+              }
+              handleClick={(name: string) => {
+                  setSearchType('name');
+                  setSearchValue(name);
+                  setPage(0);
+                  dispatchGetAllUsers({
+                    server: stateUser.server,
+                    searchType: 'name',
+                    searchValue: name,
+                    usersPage: 1,
+                  });
+              }}
+              circleMarker
+              markers={
+                stateUser.users
+                && stateUser.users.results
+                && stateUser.users.results
+                /*.filter(elt => 
+                  handleFilterGeographic([elt.location.lng, elt.location.lat], coordMap, zoomMap, diametreMap / zoomMap)
+                  || elt.name == searchValue
+                )*/
+                .map(elt => ({
+                  markerOffset: 15,
+                  name: elt.name,
+                  coordinates: [ elt.location.lng, elt.location.lat ],
+                }))
+              }
+            />
+
+            <Box sx={{ 
+              display: 'flex',
+              justifyContent: 'center',
+              position: 'absolute',
+              alignItems: { xs: 'baseline', md: 'center' },
+              flexDirection: { xs: 'column', md: 'row' },
+              bottom: { xs: '15px', md: '15px' },
+              left: { xs: '15px', md: '0' },
+              right: 0,
+              zIndex: 2,
+            }}>
+              <Box sx={{ maxHeight: '120px', mr: 1, mb: { xs: 1, md: 0 } }}>
+                <SelectField
+                  onChange={(e: string) => setSearchType(e)}
+                  options={[ 'name', 'address' ]}
+                  value={searchType}
                 />
-              </Grid>
-            </Grid>
-          </Box>
-        </Container>
-      </div>
-      <Container sx={{ mb: 5, mt: 5 }}>
-        <Paper elevation={3} sx={{ padding: '5px 20px' }}>
-          <Box sx={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap' }}>
-            <Typography variant="h2">Users</Typography>
-            <Box sx={{ ml: 3, mt: 2, mb: 1, maxHeight: '120px'}}>
-              <SelectField
-                onChange={(e: string) => setSearchType(e)}
-                options={[ 'name', 'address' ]}
-                defaultValue={searchType}
-              />
+              </Box>
+              <Box sx={{ mr: 0, maxHeight: '120px'}}>
+                <SearchField 
+                  loading={stateUser.loadingGetAll}
+                  value={searchValue}
+                  onDelete={() => {
+                      if (searchValue) {
+                        setSearchValue('');
+                        setPage(0);
+                        dispatchGetAllUsers({
+                          server: stateUser.server,
+                          searchType,
+                          searchValue: '',
+                          usersPage: 1,
+                        });
+                      }
+                    }
+                  }
+                  onChange={(e: string) => {
+                      setSearchValue(e);
+                      setPage(0);
+                      dispatchGetAllUsers({
+                        server: stateUser.server,
+                        searchType,
+                        searchValue: e,
+                        usersPage: 1,
+                      })
+                    }
+                  }
+                />
+              </Box>
             </Box>
-            <Box sx={{ ml: 1, mt: 2, mb: 1, maxHeight: '120px'}}>
-              <SearchField 
-                onChange={(e: string) => dispatchGetAllUsers({
-                  searchType,
-                  searchValue: e,
-                  usersPage: 1,
-                })}
-              />
-            </Box>
-          </Box>
-        </Paper>
-        {stateUser.loadingGetAll && <CircularProgress sx={{ mt: 2, display: 'block', margin: 'auto', color: "black" }} />}
-        {stateUser.errorGetAll && <Typography sx={{ color: 'black', mt: 2 }} variant="h5">Server request fail.</Typography>}
-        {stateUser.users && !stateUser.loadingGetAll && !stateUser.errorGetAll && !stateUser.users.results &&
-          <Typography sx={{ color: 'black', mt: 2 }} variant="h5">List is empty.</Typography>}
-        <Box sx={{ display: 'flex', pt: 5, pb: 5, maxHeight: '490px', overflowX: 'auto' }}>
-          {stateUser.users 
-            && stateUser.users.results
-            && stateUser.users.results.filter(elt => elt.address != stateAccount.address).map((elt, index) => 
-              <Profile
-                key={index}
-                name={elt.name}
-                type={elt.profile}
-                level={elt.experience ? levelDisplay(elt.experience / 100) : 1}
-                location={elt.location && elt.location.name}
-                actionText={'Check'}
-                onClick={() => handleProfileCheck(elt.address)}
-              />)}
-        </Box>
-      </Container>
-      <div style={{ background: '#233044', minHeight: '300px' }}>
-        <Container>
-          <WorldMap
-            markers={
-              stateUser.users
+          </Container>
+        </div>
+        {/* List User */}
+        <div style={{ minWidth: '300px', flex: 1, background: '#344052', marginTop: '1px' }}>
+          <Typography sx={{ mt: 1, p: '5px 15px' }} variant="h5">Users {stateUser.users && stateUser.users.results && stateUser.users.results.length}</Typography>
+          {stateUser.loadingGetAll && <CircularProgress sx={{ mt: 2, color: "white" }} />}
+          {stateUser.errorGetAll && <Typography sx={{ color: 'tomato', mt: 2 }} variant="h6">Server request fail, please try again later.</Typography>}
+          {stateUser.users && !stateUser.loadingGetAll && !stateUser.errorGetAll && (!stateUser.users.results || !stateUser.users.results.length) &&
+            <Container>
+              <Typography sx={{ color: 'white', mt: 2 }} variant="h5">List is empty.</Typography>
+            </Container>}
+
+          <Box sx={{ 
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            pb: 5,
+            overflow: 'auto',
+            overflowX: 'hidden',
+            maxHeight: 'calc(100vh - 70px)'
+          }}>
+            {stateUser.users 
               && stateUser.users.results
-              && stateUser.users.results.map(elt => ({
-                markerOffset: 15,
-                name: elt.name,
-                coordinates: [ elt.location.lng, elt.location.lat ],
-              }))}
-          />
-        </Container>
-      </div>
+              && stateUser.users.results/*.filter(elt => elt.address != stateAccount.address)*/
+              //.filter(elt => handleFilterGeographic([elt.location.lng, elt.location.lat], coordMap, zoomMap, diametreMap / zoomMap))
+              .filter((elt: User, num: number) => num >= page * pageSize && num < (page + 1) * pageSize)
+              .map((elt, index) => 
+                <div key={index} style={{ width: '373px', height: '323px', transform: 'scale(0.8)', margin: '5px' }}>
+                  <PictureCreator
+                    cropSize
+                    mode={0}
+                    imageDisplay={elt.image}
+                    level={elt.experience ? levelDisplay(elt.experience) : 1}
+                    type={elt.type}
+                    name={elt.name}
+                    location={elt.location.name}
+                    onClick={() => handleProfileCheck(elt)}
+                    actionText={'Check'}
+                  />
+                </div>)}
+          </Box>
+          {/* Pagination */}
+          {stateUser.users.results && stateUser.users.results.length / pageSize > 1 && <Pagination
+            count={Math.ceil(stateUser.users.results.length / pageSize)}
+            sx={{ 
+              background: '#202b3c',
+              display: 'flex',
+              justifyContent: 'center',
+              padding: '10px',
+              borderRadius: '7px',
+              maxWidth: '300px',
+              margin: 'auto',
+            }}
+            onChange={handlePagination}
+          />}
+        </div>
+      </div>}
     </Template>;
 
-  return redirctTo ? <Redirect to="/" /> : render;
+  return redirctTo ? <Redirect to="/profile" /> : render;
 }
 
 export default hot(module)(MarketScene);

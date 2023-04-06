@@ -5,6 +5,8 @@ import {
   UserReducerState,
   CreateUserPayload,
   CreateUserFailurePayload,
+  BurnOutPayload,
+  BurnOutFailurePayload,
   GetUserPayload,
   GetUserFailurePayload,
   UpdateUserPayload,
@@ -13,17 +15,23 @@ import {
   DeleteUserFailurePayload,
   GetAllUsersPayload,
   GetAllUsersFailurePayload,
+  CreateAdPayload,
+  CreateAdFailurePayload,
+  RemoteUserPayload,
+  AddSessionActionPayload,
 } from "../types/UserTypes";
-
 import {
-  TYPES_ACCOUNT,
-} from "../types/AccountTypes";
+  TYPES_URI,
+  DeleteUriSuccessPayload,
+  AddUriPayload,
+} from "../types/UriTypes";
 
 import { createReducer } from "@utils/helpers";
 
 const defaultState: UserReducerState = {
   user: null,
   users: null,
+  userRemote: null,
   usersPage: 1,
   searchType: 'name',
   searchValue: '',
@@ -39,13 +47,20 @@ const defaultState: UserReducerState = {
   loadingDelete: false,
   errorGetAll: false,
   loadingGetAll: false,
+  errorCreateAd: false,
+  loadingCreateAd: false,
+  loadingBurnout: false,
+  errorBurnout: false,
   quest: false,
   questSuccess: false,
-  // sign up
+  ad: null,// stocked before sent to server
+  // sign up or burnout
   name: null,
-  profile: null,
+  type: null,
   location: null,
   address: null,
+  server: null,
+  webSocket: false,// is linked with ws? - todo
   jwt: '',
   walletType: '',
 };
@@ -71,6 +86,24 @@ export const userReducer = createReducer(
       ...payload,
       loadingCreate: false,
       errorCreate: true,
+    }),
+    [TYPES_USER.BURN_OUT]: (state: UserReducerState, payload: BurnOutPayload) => ({
+      ...state,
+      ...payload,
+      loadingBurnout: true,
+      errorBurnout: false,
+    }),
+    [TYPES_USER.BURN_OUT_SUCCESS]: (state: UserReducerState, payload: UserPayload) => ({
+      ...state,
+      ...payload,
+      loadingBurnout: false,
+      errorBurnout: false,
+    }),
+    [TYPES_USER.BURN_OUT_FAILURE]: (state: UserReducerState, payload: BurnOutFailurePayload) => ({
+      ...state,
+      ...payload,
+      loadingBurnout: false,
+      errorBurnout: true,
     }),
     [TYPES_USER.GET_USER]: (state: UserReducerState, payload: GetUserPayload) => ({
       ...state,
@@ -133,6 +166,7 @@ export const userReducer = createReducer(
     [TYPES_USER.GET_ALL]: (state: UserReducerState, payload: GetAllUsersPayload) => ({
       ...state,
       ...payload,
+      searchValue: payload.searchValue ? payload.searchValue : '',
       loadingGetAll: true,
       errorGetAll: false,
     }),
@@ -148,10 +182,64 @@ export const userReducer = createReducer(
       loadingGetAll: false,
       errorGetAll: true,
     }),
-
-    [TYPES_ACCOUNT.LOGOUT]: () => ({
-      ...defaultState
+    [TYPES_USER.CREATE_AD]: (state: UserReducerState, payload: CreateAdPayload) => ({
+      ...state,
+      ...payload,
+      loadingCreateAd: true,
+      errorCreateAd: false,
     }),
+    [TYPES_USER.CREATE_AD_SUCCESS]: (state: UserReducerState, payload: UsersPayload) => ({
+      ...state,
+      ...payload,
+      loadingCreateAd: false,
+      errorCreateAd: false,
+    }),
+    [TYPES_USER.CREATE_AD_FAILURE]: (state: UserReducerState, payload: CreateAdFailurePayload) => ({
+      ...state,
+      ...payload,
+      loadingCreateAd: false,
+      errorCreateAd: true,
+    }),
+    [TYPES_USER.REMOTE_USER]: (state: UserReducerState, payload: RemoteUserPayload) => ({
+      ...state,
+      ...payload,
+    }),
+    [TYPES_USER.LOGOUT]: (state: UserReducerState) => ({
+      ...state,
+    }),
+    [TYPES_USER.RESET]: () => ({
+      ...defaultState,
+    }),
+    [TYPES_USER.ADD_SESSION_ACTION]: (state: UserReducerState, payload: AddSessionActionPayload) => {
+      const currentUser = state.user;
+      const currentSessionAction = currentUser && currentUser.sessionAction ? currentUser.sessionAction : [];
+      currentSessionAction.push(payload.action);
+      const newUser = { ...currentUser, sessionAction: currentSessionAction };
+      return ({
+        ...state,
+        user: newUser,
+      });
+    },
+
+    // update session
+    [TYPES_URI.DELETE_SUCCESS]: (state: UserReducerState, payload: DeleteUriSuccessPayload) => {
+      const currentUser = state.user;
+      currentUser.sessionAction.push('delete_' + payload.uri.image.split('#')[0]);
+
+      return {
+        ...state,
+        user: currentUser,
+      };
+    },
+    [TYPES_URI.ADD]: (state: UserReducerState, payload: AddUriPayload) => {
+      const currentUser = state.user;
+      currentUser.sessionAction.push('add_' + payload.uri.image.split('#')[0]);
+
+      return {
+        ...state,
+        user: currentUser,
+      }
+    },
   },
   defaultState
 );

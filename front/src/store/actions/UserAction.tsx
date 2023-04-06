@@ -3,6 +3,11 @@ import {
   CreateUser,
   CreateUserSuccess,
   CreateUserFailure,
+  BurnOut,
+  BurnOutSuccess,
+  BurnOutFailure,
+  BurnOutPayload,
+  BurnOutFailurePayload,
   UserPayload,
   CreateUserPayload,
   CreateUserFailurePayload,
@@ -27,8 +32,55 @@ import {
   GetAllUsers,
   GetAllUsersSuccess,
   GetAllUsersFailure,
+  CreateAd,
+  CreateAdSuccess,
+  CreateAdFailure,
+  CreateAdPayload,
+  CreateAdFailurePayload,
+  RemoteUserPayload,
+  RemoteUser,
+  Logout,
+  Reset,
+  AddSessionActionPayload,
+  AddSessionAction,
 } from "../types/UserTypes";
 
+export function createAd(data: CreateAdPayload): CreateAd {
+  return {
+    type: TYPES_USER.CREATE_AD,
+    payload: data,
+  };
+}
+export function createAdSuccess(data: UsersPayload): CreateAdSuccess {
+  return {
+    type: TYPES_USER.CREATE_AD_SUCCESS,
+    payload: data,
+  };
+}
+export function createAdFailure(data: CreateAdFailurePayload): CreateAdFailure {
+  return {
+    type: TYPES_USER.CREATE_AD_FAILURE,
+    payload: data,
+  };
+}
+export function burnOut(data: BurnOutPayload): BurnOut {
+  return {
+    type: TYPES_USER.BURN_OUT,
+    payload: data,
+  };
+}
+export function burnOutSuccess(data: UserPayload): BurnOutSuccess {
+  return {
+    type: TYPES_USER.BURN_OUT_SUCCESS,
+    payload: data,
+  };
+}
+export function burnOutFailure(data: BurnOutFailurePayload): BurnOutFailure {
+  return {
+    type: TYPES_USER.BURN_OUT_FAILURE,
+    payload: data,
+  };
+}
 export function getAllUsers(data: GetAllUsersPayload): GetAllUsers {
   return {
     type: TYPES_USER.GET_ALL,
@@ -100,7 +152,6 @@ export function getUserFailure(data: GetUserFailurePayload): GetUserFailure {
     payload: data,
   };
 }
-
 export function createUser(data: CreateUserPayload): CreateUser {
   return {
     type: TYPES_USER.CREATE_USER,
@@ -116,6 +167,28 @@ export function createUserSuccess(data: UserPayload): CreateUserSuccess {
 export function createUserFailure(data: CreateUserFailurePayload): CreateUserFailure {
   return {
     type: TYPES_USER.CREATE_USER_FAILURE,
+    payload: data,
+  };
+}
+export function remoteUser(data: RemoteUserPayload): RemoteUser {
+  return {
+    type: TYPES_USER.REMOTE_USER,
+    payload: data,
+  };
+}
+export function logout(): Logout {
+  return {
+    type: TYPES_USER.LOGOUT,
+  };
+}
+export function reset(): Reset {
+  return {
+    type: TYPES_USER.RESET,
+  };
+}
+export function addSessionAction(data: AddSessionActionPayload): AddSessionAction {
+  return {
+    type: TYPES_USER.ADD_SESSION_ACTION,
     payload: data,
   };
 }

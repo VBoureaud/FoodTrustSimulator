@@ -25,6 +25,7 @@ import BridgeIcon from "./assets/bridge.png";
 import { handleXumm, handleXummTx } from "./XummProvider";
 import { handleGem, handleGemTx } from "./GemProvider";
 import BridgeProvider, { BridgeTx, bridgeApiCall } from "./BridgeProvider";
+import { ChainList } from "./Web3ProviderXRPLTypes";
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 	props,
@@ -37,7 +38,7 @@ type payloadXRPL = {
 	Account?: string;
 	TransactionType: string;
 	Owner: string;
-	TokenID: string; //NFTokenID soon - todo check
+	NFTokenID: string;
 	Amount: string;
 	Flags: number;
 }
@@ -45,6 +46,8 @@ type payloadXRPL = {
 type Web3ProviderXRPLProps = {
 	handleWallet?: Function;
 	handleTransaction?: Function;
+	handleError?: Function;
+	chainList?: ChainList[];
 	walletType?: string;
 	currentJwt?: string;
 	handleClose?: (value?: string) => void;
@@ -54,8 +57,8 @@ type Web3ProviderXRPLProps = {
 	appKey?: string;
 	clientUrl?: string;
 	xrplUrl?: string;
-	faucet?: string;
-};
+	loading?: boolean;
+}
 
 type Web3AuthProps = {
 	handleWallet?: Function;
@@ -63,27 +66,28 @@ type Web3AuthProps = {
 	showError?: Function;
 	catchError?: Function;
 };
+
 const Web3Auth = (props: Web3AuthProps) => {
 	const handleClick = async (provider: string) => {
 		if (props.listProvider[provider].onClick) {
-				const res = await props.listProvider[provider].onClick(props.handleWallet)
-				if (!res && props.showError && props.catchError) {
-					props.catchError('Something went wrong, please try again.');
-					props.showError(true);
-				}
+			const res = await props.listProvider[provider].onClick(props.handleWallet)
+			if (!res && props.showError && props.catchError) {
+				props.catchError('Something went wrong, please try again.');
+				props.showError(true);
+			}
 		}
 	}
 
 	return (
 		<>
-			<DialogTitle>Choose an authenticator</DialogTitle>
-
+			<DialogTitle>Choose an authenticator on Testnet</DialogTitle>
 			<List sx={{ pt: 0, display: 'flex', flexWrap: 'wrap', maxWidth: '500px' }}>
 				{props.listProvider && Object.keys(props.listProvider).map((provider) => (
 					<ListItem 
 						button
 						sx={{ padding: 2 }}
 						onClick={() => handleClick(provider)}
+						id={provider}
 						key={provider}
 					>
 						<ListItemAvatar>
@@ -107,13 +111,13 @@ const Web3ProviderXRPL = (props: Web3ProviderXRPLProps) => {
 		Xumm: {
 			icon: XummIcon,
 			desc: 'Official client for XRPL (Web3)',
-			onClick: () => handleXumm('xumm', props.handleWallet, props.appKey, props.clientUrl),
-			onTransaction: () => handleXummTx(props.payload, props.handleTransaction, props.currentJwt, handleCancelTx),
+			onClick: () => handleXumm('xumm', props.handleWallet, props.appKey, props.clientUrl, props.chainList),
+			onTransaction: () => handleXummTx(props.payload, props.handleTransaction, props.currentJwt, handleCancelTx, props.handleError),
 		},
-		Gem: {
+		GemWallet: {
 			icon: GemWalletIcon,
 			desc: 'Web extension for XRPL (Web3)',
-			onClick: () => handleGem('gem', props.handleWallet, handleNoGem),
+			onClick: () => handleGem('gem', props.handleWallet, handleNoGem, props.chainList),
 			onTransaction: () => handleGemTx(props.payload, props.handleTransaction),
 		},
 		Bridge: {
@@ -132,7 +136,7 @@ const Web3ProviderXRPL = (props: Web3ProviderXRPLProps) => {
 		if (props.handleTransaction && props.visible) {
 			handleTransaction();
 		}
-	}, [props.visible])
+	}, [props.visible]);
 
 
 	const handleCancelTx = async () => {
@@ -156,9 +160,9 @@ const Web3ProviderXRPL = (props: Web3ProviderXRPLProps) => {
 		}
 	}
 
-	const handleNoGem = async (noGem: boolean) => {
+	const handleNoGem = async (noGem: boolean, msg?: string) => {
 		if (noGem) {
-			await setSnackMessage('You must have GemWallet installed on your browser to continue.')
+			await setSnackMessage(msg ? msg : 'You must have GemWallet installed on your browser to continue.')
 			setShowSnack(true);
 		}
 	}
@@ -169,7 +173,6 @@ const Web3ProviderXRPL = (props: Web3ProviderXRPLProps) => {
 				open={props.visible}
 				onClose={props.handleClose}
 				>
-
 				{/* Authentification */}
 				{props.handleWallet && <DialogContent sx={{ p: 2 }}>
 					{!showBridge && 
@@ -184,7 +187,8 @@ const Web3ProviderXRPL = (props: Web3ProviderXRPLProps) => {
 							handleWallet={props.handleWallet}
 							handleClose={listProvider.Bridge.onClose}
 							errorMsg={props.errorMsg}
-							faucet={props.faucet}
+							chainList={props.chainList}
+							loading={props.loading}
 						/>}
 				</DialogContent>}
 
@@ -200,6 +204,8 @@ const Web3ProviderXRPL = (props: Web3ProviderXRPLProps) => {
 									return true;
 								}
 								catch (err) {
+									console.log({ err });
+									if (props.handleError) props.handleError();
 									return false;
 								}
 							}}

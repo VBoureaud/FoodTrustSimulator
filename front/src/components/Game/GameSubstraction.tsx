@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 
@@ -10,6 +11,7 @@ type GameSubstractionProps = {
 	type?: string;
 	canPlay?: boolean;
 	onLaunch?: Function;
+	tokenName?: string;
 };
 
 const random = (max: number) => Math.floor(Math.random() * max);
@@ -35,11 +37,12 @@ const GameSubstraction : React.FunctionComponent<GameSubstractionProps> = (props
 		if (step != 2) return () => true;
 		let timeout: ReturnType<typeof setTimeout>;
 		timeout = setTimeout(() => {
-	      setStep(0);
-		  setChoice(0);
-		  setNum1(random(42));
-		  setNum2(random(42));
-	    }, 5000);
+			/*setStep(0);
+			setChoice(0);
+			setNum1(random(42));
+			setNum2(random(42));*/
+			if (props.onVictory) props.onVictory(props.type);
+	    }, 3500);
 
 		// like componentDidUnMount
 	    return () => clearTimeout(timeout);
@@ -49,7 +52,6 @@ const GameSubstraction : React.FunctionComponent<GameSubstractionProps> = (props
 		// Victory
 		if (step == 1 && choice == num1 - num2) {
 			setStep(2);
-			if (props.onVictory) props.onVictory(props.type);
 		}
 	}
 
@@ -57,7 +59,7 @@ const GameSubstraction : React.FunctionComponent<GameSubstractionProps> = (props
 		if (props.canPlay)
 			setStep(1);
 		if (props.onLaunch)
-			props.onLaunch();
+			props.onLaunch(true);
 	};
 
 	return (
@@ -66,10 +68,11 @@ const GameSubstraction : React.FunctionComponent<GameSubstractionProps> = (props
 				<Box onClick={handleLaunch}>
 					<Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play</Typography>
 					{props.cost && <Typography variant="h6">Cost estimated {props.cost} XRP</Typography>}
-					<Typography variant="body1">Substraction game.</Typography>
+					<Typography variant="body1"><b>Substraction Game</b> - Find the right answer to win{props.tokenName ? ' a ' + props.tokenName : ''}.</Typography>
 				</Box>}
 			{step == 1 &&
 				<Box>
+					<Typography variant="h4" sx={{ textAlign: 'center', mb: 3, mt: 2 }}>What is the answer ?</Typography>
 					<Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
 						<Typography variant="h2">{num1}</Typography>
 						<Typography sx={{ ml: 2, mr: 2 }} variant="h4">-</Typography>
@@ -77,14 +80,15 @@ const GameSubstraction : React.FunctionComponent<GameSubstractionProps> = (props
 					</Box>
 					<Divider sx={{ m: 2 }}/>
 					<Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
-						{shuffle([random(42), random(42), random(42), random(42), num1 - num2]).map((num, key) => 
+						{shuffle([num1 - num2 + random(40), num1 - num2 - random(4), num1 - num2 + random(2), num1 - num2 - random(5), num1 - num2]).map((num, key) => 
 							<Box 
 								onClick={() => setChoice(num)}
 								sx={{
 									border: '1px solid #5d5d5d', 
 									borderRadius: '20px', 
 									cursor: 'pointer',
-									background: '#505050',
+									background: '#25231d',
+									color: 'white',
 									m: 1 }}
 								key={key}>
 								<Typography sx={{ p: 2 }} variant="h3">{num}</Typography>
@@ -92,7 +96,10 @@ const GameSubstraction : React.FunctionComponent<GameSubstractionProps> = (props
 						)}
 					</Box>
 				</Box>}
-			{step == 2 && <Typography variant="h2" sx={{ cursor: 'pointer' }}>You Win!</Typography>}
+			{step == 2 && <>
+				<Typography variant="h2" sx={{ cursor: 'pointer' }}>You Win!</Typography>
+				<CircularProgress sx={{ display: 'block', margin: 'auto', color: "black" }} />
+			</>}
 		</Box>
 	);
 }

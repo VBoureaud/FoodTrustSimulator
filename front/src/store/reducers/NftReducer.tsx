@@ -4,14 +4,14 @@ import {
   GetOffersPayload,
   OffersPayload,
   GetOffersFailurePayload,
-  GetHistoryPayload,
-  HistoryPayload,
-  GetHistoryFailurePayload,
+  GetParentsPayload,
+  GetParentsSuccessPayload,
+  GetParentsFailurePayload,
 } from "../types/NftTypes";
 
 import {
-  TYPES_ACCOUNT,
-} from "../types/AccountTypes";
+  TYPES_USER,
+} from "../types/UserTypes";
 
 import { createReducer } from "@utils/helpers";
 
@@ -20,11 +20,12 @@ const defaultState: NFTReducerState = {
   errorMsg: '',
   errorGetOffers: false,
   loadingGetOffers: false,
-  errorHistory: false,
-  loadingHistory: false,
-  history: null,
   sellOffers: null,
   buyOffers: null,
+  name: '',
+  parents: null,
+  loadingParents: false,
+  errorParents: false,
 };
 
 export const nftReducer = createReducer(
@@ -47,27 +48,30 @@ export const nftReducer = createReducer(
       loadingGetOffers: false,
       errorGetOffers: true,
     }),
-    [TYPES_NFT.GET_HISTORY]: (state: NFTReducerState, payload: GetHistoryPayload) => ({
+    [TYPES_NFT.GET_PARENTS]: (state: NFTReducerState, payload: GetParentsPayload) => ({
       ...state,
       ...payload,
-      history: {},
-      loadingHistory: true,
-      errorHistory: false,
+      loadingParents: true,
+      errorParents: false,
     }),
-    [TYPES_NFT.GET_HISTORY_SUCCESS]: (state: NFTReducerState, payload: HistoryPayload) => ({
+    [TYPES_NFT.GET_PARENTS_SUCCESS]: (state: NFTReducerState, payload: GetParentsSuccessPayload) => {
+      return ({
+        ...state,
+        ...payload,
+        loadingParents: false,
+        errorParents: false,
+      });
+    },
+    [TYPES_NFT.GET_PARENTS_FAILURE]: (state: NFTReducerState, payload: GetParentsFailurePayload) => ({
       ...state,
       ...payload,
-      loadingHistory: false,
-      errorHistory: false,
-    }),
-    [TYPES_NFT.GET_HISTORY_FAILURE]: (state: NFTReducerState, payload: GetHistoryFailurePayload) => ({
-      ...state,
-      ...payload,
-      loadingHistory: false,
-      errorHistory: true,
+      loadingParents: false,
+      errorParents: true,
     }),
 
-    [TYPES_ACCOUNT.LOGOUT]: () => ({
+
+    // reset
+    [TYPES_USER.LOGOUT]: () => ({
       ...defaultState
     }),
   },

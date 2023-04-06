@@ -1,25 +1,46 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 10,
-  borderRadius: 5,
-  [`&.${linearProgressClasses.colorPrimary}`]: {
-    backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
-  },
-  [`& .${linearProgressClasses.bar}`]: {
-    borderRadius: 5,
-    backgroundColor: theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8',
-  },
-}));
+import Tooltip from '@mui/material/Tooltip';
 
 type CustomizedProgressBarsProps = {
   progress: number;
+  showValue?: number | string;
+  colorGraduation?: boolean;
+  forcedColor?: string;
 };
 
-const CustomizedProgressBars = (props: CustomizedProgressBarsProps) => (
-  <BorderLinearProgress variant="determinate" value={props.progress} />
-);
+const chooseColors = (progress: number, colorGraduation: boolean) => {
+  if (colorGraduation && progress <= 30)
+    return 'tomato';
+  else if (colorGraduation && progress <= 50)
+    return 'yellow';
+  return '#1a90ff';
+}
+
+const CustomizedProgressBars = (props: CustomizedProgressBarsProps) => {
+  const progress = <LinearProgress
+    sx={{
+      height: 10,
+      width: '100%',
+      borderRadius: 5,
+      [`&.${linearProgressClasses.colorPrimary}`]: {
+        backgroundColor: '#333',
+      },
+      [`& .${linearProgressClasses.bar}`]: {
+        borderRadius: 5,
+        backgroundColor: props.forcedColor ? props.forcedColor : chooseColors(props.progress, !!props.colorGraduation),
+      },
+    }}
+    variant="determinate"
+    value={props.progress}
+  />;
+  return props.showValue !== undefined ? <Tooltip 
+    placement="bottom"
+    title={props.showValue}>
+      {progress}
+    </Tooltip> : progress;
+}
+ 
 
 export default CustomizedProgressBars;

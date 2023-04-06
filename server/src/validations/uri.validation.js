@@ -1,11 +1,16 @@
 const Joi = require('joi');
-const { uriHash, xrplAddress } = require('./custom.validation');
+const { 
+  uriHash,
+  xrplAddress,
+  xrplOffer,
+  updateUriActionType
+} = require('./custom.validation');
 
 const register = {
   body: Joi.object().keys({
     name: Joi.string().required().custom(uriHash),
     nftToken: Joi.string().length(64).pattern(/^[A-Z0-9]+$/).required(),
-    parents: Joi.string(),
+    parents: Joi.array().items(Joi.string()),
   }),
 };
 
@@ -27,14 +32,26 @@ const patchUri = {
   body: Joi.object()
     .keys({
       owner: Joi.string().custom(xrplAddress),
-      offerBuy: Joi.string().custom(xrplAddress),
+      offer: Joi.string().custom(xrplOffer),
+      action: Joi.string().custom(updateUriActionType),
     })
     .min(1),
 };
 
-const historyUri = {
+const deleteUri = {
   params: Joi.object().keys({
-    tokenId: Joi.string().length(64).pattern(/^[A-Z0-9]+$/),
+    name: Joi.string().custom(uriHash).required(),
+  }),
+  body: Joi.object()
+    .keys({
+      owner: Joi.string().custom(xrplAddress),
+    })
+    .min(1),
+};
+
+const parentsUri = {
+  params: Joi.object().keys({
+    name: Joi.string().custom(uriHash).required(),
   }),
 };
 
@@ -42,5 +59,6 @@ module.exports = {
   register,
   queryUris,
   patchUri,
-  historyUri,
+  deleteUri,
+  parentsUri,
 };

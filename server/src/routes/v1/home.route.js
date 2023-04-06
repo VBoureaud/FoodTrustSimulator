@@ -6,6 +6,10 @@ router
   .route('/')
   .get(homeController.getHome)
 
+router
+  .route('/ably/auth')
+  .get(homeController.getWss)
+
 module.exports = router;
 
 /**

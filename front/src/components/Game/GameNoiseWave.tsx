@@ -18,12 +18,14 @@ type GameNoiseWaveProps = {
     onVictory?: Function;
     canPlay?: boolean;
     onLaunch?: Function;
+    tokenName?: string;
 };
 
 const GameNoiseWave: React.FunctionComponent<GameNoiseWaveProps> = (props) => {
     const limitTime = 20;
     const [count, setCount] = useState(0);
     const [step, setStep] = useState(0);
+    
     const p5Ref = useRef();
     const containDiv = useRef<HTMLInputElement>(null);
     let myP5Canvas:any = null;
@@ -120,7 +122,7 @@ const GameNoiseWave: React.FunctionComponent<GameNoiseWaveProps> = (props) => {
         if (props.canPlay)
             setStep(1);
         if (props.onLaunch)
-            props.onLaunch();
+            props.onLaunch(true);
     };
     
     return (
@@ -129,7 +131,7 @@ const GameNoiseWave: React.FunctionComponent<GameNoiseWaveProps> = (props) => {
                 <Box onClick={handleLaunch}>
                     <Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play</Typography>
                     {props.cost && <Typography variant="h6">Cost estimated {props.cost} XRP</Typography>}
-                    <Typography variant="body1">Contemplative game.</Typography>
+                    <Typography variant="body1"><b>Contemplative Game</b> - Use patience to win{props.tokenName ? ' a ' + props.tokenName : ''}.</Typography>
                 </Box>}
             {step == 1 &&
                 <Box ref={containDiv} sx={{ position: 'relative', width: '100%' }}>
@@ -138,13 +140,14 @@ const GameNoiseWave: React.FunctionComponent<GameNoiseWaveProps> = (props) => {
                         'top': '5px',
                         'marginLeft': '10px',
                         'fontSize': '40px',
+                        'color': 'white',
                     }}>{count} / {limitTime}</Box>
                     <div ref={p5Ref}>
                     </div>
                 </Box>}
             {step == 2 && <Box>
                 <Typography variant="h2" sx={{ cursor: 'pointer' }}>You Win!</Typography>
-                <CircularProgress sx={{ display: 'block', margin: 'auto', color: "white" }} />
+                <CircularProgress sx={{ display: 'block', margin: 'auto', color: "black" }} />
             </Box>}    
         </Box>
     )

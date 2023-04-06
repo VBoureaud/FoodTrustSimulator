@@ -4,9 +4,14 @@ import {
 	Offers
 } from '@store/types/NftTypes';
 
+import { 
+	User
+} from '@store/types/UserTypes';
+
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
+import Tooltip from '@mui/material/Tooltip';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -27,9 +32,12 @@ type ListOffersProps = {
 	handleCancelOffer: Function;
 	emptyTitle: string;
 	currentAddr: string;
+	users?: User[];
 };
 
 const ListOffers : React.FunctionComponent<ListOffersProps> = (props) => {
+	const getName = (user: User | null, byDefault: string) => user ? user.name : byDefault;
+	const getUserName = (address: string) => props.users ? getName(props.users.filter((e: User) => e.address === address)[0], address) : address;
 	return (
 		<div style={{ width: '100%' }}>
 			{props.canDoOffer 
@@ -46,14 +54,18 @@ const ListOffers : React.FunctionComponent<ListOffersProps> = (props) => {
 			<List sx={{ width: '100%', maxHeight: '300px', overflowX: 'hidden', overflowY: 'auto' }}>
 				{props.listOffers && props.listOffers.map((elt, index) => 
 					<ListItem sx={{ mb: 1, background: '#212121', wordBreak: 'break-word' }} key={index}>
-						<ListItemText>
+						<ListItemText sx={{ display: 'flex', flexWrap: 'wrap' }}>
 							<Typography sx={{ fontSize: '24px' }}>
 								<strong>{xrpl.dropsToXrp(elt.amount)}</strong>
-								<span style={{ fontSize: '14px', marginLeft: '2px' }}> XRP</span>
-								<span style={{ fontSize: '12px' }}> by <strong>{elt.owner === props.currentAddr ? 'you' : elt.owner}</strong></span>
+								<span style={{ fontSize: '14px', marginLeft: '1px' }}>XRP</span>
+								<span style={{ fontSize: '12px' }}> by </span>
+								<Tooltip placement="top-start" title={elt.owner}>
+										{/*<strong>{elt.owner === props.currentAddr ? 'you' : getUserName(elt.owner)}</strong>*/}
+										<strong style={{ fontSize: '18px' }}>{getUserName(elt.owner)}</strong>
+								</Tooltip>
 							</Typography>
 						</ListItemText>
-						{props.canGetOffer && elt.owner != props.currentAddr && <ListItemButton onClick={() => props.handleGetOffer(elt.nft_offer_index)} sx={{ maxWidth: '155px', mr: 2 }}>
+						{props.canGetOffer && elt.owner != props.currentAddr && <ListItemButton onClick={() => props.handleGetOffer(elt.nft_offer_index)} sx={{ padding: 1, borderRadius: '5px', border: '1px solid grey', justifyContent: 'center' }}>
 							{props.getOfferTitle}
 						</ListItemButton>}
 					</ListItem>)}

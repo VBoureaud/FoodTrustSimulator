@@ -13,7 +13,7 @@ const initState = {};
 //create history
 export const history = createBrowserHistory({ basename: "/" });
 
-export default function makeStore(initialState = initState) {
+function makeStore(initialState = initState) {
   const sagaMiddleware = createSagaMiddleware();
   const middlewares:any = [sagaMiddleware, thunk];
   let composeEnhancers = compose;
@@ -51,3 +51,7 @@ export default function makeStore(initialState = initState) {
 
   return store;
 }
+
+const store = makeStore();
+
+export default store;

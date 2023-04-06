@@ -9,6 +9,12 @@ import {
 	GetUrisSuccess,
 	GetUrisFailure,
 	AddUri,
+	DeleteUri,
+	DeleteUriSuccess,
+	DeleteUriFailure,
+	DeleteUriPayload,
+	DeleteUriSuccessPayload,
+	DeleteUriFailurePayload,
 } from "@store/types/UriTypes";
 
 export function getUris(data: GetUrisPayload): GetUris {
@@ -34,6 +40,26 @@ export function getUrisFailure(data: GetUrisFailurePayload): GetUrisFailure {
 export function addUri(data: AddUriPayload): AddUri {
   return {
   	type: TYPES_URI['ADD'],
+  	payload: data,
+  };
+};
+
+// delete an Uri registered
+export function deleteUri(data: DeleteUriPayload): DeleteUri {
+  return {
+  	type: TYPES_URI['DELETE'],
+  	payload: data,
+  };
+};
+export function deleteUriSuccess(data: DeleteUriSuccessPayload): DeleteUriSuccess {
+  return {
+  	type: TYPES_URI['DELETE_SUCCESS'],
+  	payload: data,
+  };
+};
+export function deleteUriFailure(data: DeleteUriFailurePayload): DeleteUriFailure {
+  return {
+  	type: TYPES_URI['DELETE_FAILURE'],
   	payload: data,
   };
 };

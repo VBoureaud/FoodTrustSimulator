@@ -9,6 +9,13 @@ import {
 } from "../api";
 
 import {
+  configOnChain,
+} from "@config";
+import {
+  getObjInArray,
+} from "@utils/helpers";
+
+import {
   getAccount,
   getAccountSuccess,
   getAccountFailure,
@@ -20,6 +27,8 @@ import {
   getTokensFailure,
   doRefreshSuccess,
   doRefreshFailure,
+  getRemoteAccountSuccess,
+  getRemoteAccountFailure,
   getRemoteTokensSuccess,
   getRemoteTokensFailure,
   getUser,
@@ -36,24 +45,34 @@ import {
 
 function* getAccountWorker():any {
   try {
-    const account = yield select((state: AppState) => state.accountReducer);
+    const accountState = yield select((state: AppState) => state.accountReducer);
+    const userState = yield select((state: AppState) => state.userReducer);
+    const server = getObjInArray(configOnChain, 'name', userState.server);
+
     const res = yield* callApi(accountInfoXRPL, {
-      address: account.address,
+      address: accountState.address,
+      server: server.url,
     });
-    yield put(getAccountSuccess({ account: res.result }));
+    yield put(getAccountSuccess({ account: res && res.result ? res.result : null }));
   } catch (error) {
     yield put(getAccountFailure({
       errorMsg: error.data && error.data.error_message ? error.data.error_message : error
     }));
-    yield rmStorage("current_account");
+    yield rmStorage('current_account');
+    yield rmStorage('current_server');
+    yield rmStorage('current_jwt');
+    yield put(push('/')); // Redirect Login
   }
 }
 
 function* getTxWorker():any {
   try {
-    const account = yield select((state: AppState) => state.accountReducer);
+    const accountState = yield select((state: AppState) => state.accountReducer);
+    const userState = yield select((state: AppState) => state.userReducer);
+    const server = getObjInArray(configOnChain, 'name', userState.server);
     const res = yield* callApi(accountTransactionXRPL, {
-      address: account.address,
+      server: server.url,
+      address: accountState.address,
     });
     yield put(getTxSuccess({ transactions: res.result ? res.result.transactions : [] }));
   } catch (error) {
@@ -71,59 +90,73 @@ function* refreshWorker():any {
       yield put(doRefreshFailure());
       return false;
     }
+    const server = yield getStorage('current_server');
     const walletType = yield getStorage('current_wallet');
     const currentJwt = yield getStorage('current_jwt');
 
     yield put(doRefreshSuccess({ address }));
-    yield put(getAccount({ address }));
-    yield put(getUser({ address, walletType, jwt: currentJwt }));
-    //yield put(getTokens({ address }));
-    //yield put(getTx({ address }));
-    //yield put(getUris({ address }));
+    yield put(getUser({ address, walletType, jwt: currentJwt, server }));
   } catch (error) {
     yield put(doRefreshFailure());
     yield rmStorage('current_account');
+    yield rmStorage('current_server');
     yield rmStorage('current_jwt');
-    yield put(push('login')); // Redirect Login
+    yield put(push('/')); // Redirect Login
   }
 }
 
-// Option For Sign In
 function* getTokensWorker():any {
   try {
-    const account = yield select((state: AppState) => state.accountReducer);
+    const accountState = yield select((state: AppState) => state.accountReducer);
+    const userState = yield select((state: AppState) => state.userReducer);
+    const server = getObjInArray(configOnChain, 'name', userState.server);
+    
     const res = yield* callApi(getTokensXRPL, {
-      address: account.address,
+      server: server.url,
+      address: accountState.address,
     });
-    yield put(getTokensSuccess({ nfts: res.result.account_nfts ? res.result.account_nfts : [] }));
-
-    // if sign in - todo rm ?
-    /*const address = yield getStorage('current_account');
-    if (!address) { // new Connection
-      yield storageData("current_account", account.address);
-      yield put(push("/"));
-      yield put(getAccount({ address: account.address }));
-      yield put(getUser({ address: account.address }));
-      yield put(getTx({ address: account.address }));
-      yield put(getUris({ address: account.address }));
-    }*/
+    yield put(getTokensSuccess({ nfts: res ? res : [] }));
   } catch (error) {
     yield put(getTokensFailure({
       errorMsg: error.data && error.data.error_message ? error.data.error_message : error
     }));
-    yield rmStorage("current_account");
+  }
+}
+
+function* getRemoteAccountWorker():any {
+  try {
+    const userState = yield select((state: AppState) => state.userReducer);
+    let remote_account = null;
+    const server = getObjInArray(configOnChain, 'name', userState.userRemote.server);
+
+    if (userState.userRemote) {
+      const res = yield* callApi(accountInfoXRPL, {
+        address: userState.userRemote.address,
+        server: server.url,
+      });
+      remote_account = res;
+    }
+
+    yield put(getRemoteAccountSuccess({ remote_account: remote_account && remote_account.result ? remote_account.result : null }));
+  } catch (error) {
+    yield put(getRemoteAccountFailure({
+      remote_errorMsg: error.data && error.data.error_message ? error.data.error_message : error
+    }));
   }
 }
 
 function* getRemoteTokensWorker():any {
   try {
-    const account = yield select((state: AppState) => state.accountReducer);
+    const userState = yield select((state: AppState) => state.userReducer);
     let remote_nfts = null;
-    if (account.remote_address) {
+    const server = getObjInArray(configOnChain, 'name', userState.userRemote.server);
+
+    if (userState.userRemote) {
       const res = yield* callApi(getTokensXRPL, {
-        address: account.remote_address,
+        address: userState.userRemote.address,
+        server: server.url,
       });
-      remote_nfts = res.result.account_nfts;
+      remote_nfts = res;
     }
     yield put(getRemoteTokensSuccess({ remote_nfts }));
   } catch (error) {
@@ -133,20 +166,13 @@ function* getRemoteTokensWorker():any {
   }
 }
 
-function* logoutWorker():any {
-  yield rmStorage('current_account');
-  yield rmStorage('current_wallet');
-  yield rmStorage('current_jwt');
-  yield put(push("/"));
-}
-
 const accountSaga = [
   takeLatest(TYPES_ACCOUNT.GET_ACCOUNT, getAccountWorker),
   takeLatest(TYPES_ACCOUNT.GET_TX, getTxWorker),
   takeLatest(TYPES_ACCOUNT.GET_TOKENS, getTokensWorker),
+  takeLatest(TYPES_ACCOUNT.GET_REMOTE_ACCOUNT, getRemoteAccountWorker),
   takeLatest(TYPES_ACCOUNT.GET_REMOTE_TOKENS, getRemoteTokensWorker),
   takeLatest(TYPES_ACCOUNT.REFRESH, refreshWorker),
-  takeLatest(TYPES_ACCOUNT.LOGOUT, logoutWorker),
 ];
 
 export default accountSaga;

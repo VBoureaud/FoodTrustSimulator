@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridValueGetterParams, GridRenderCellParams } from '@mui/x-data-grid';
+import Tooltip from '@mui/material/Tooltip';
 
 import {
   Transactions
@@ -11,11 +12,35 @@ import { displayDate } from '@utils/helpers';
 
 if (typeof module !== "undefined") var xrpl = require('xrpl')
 
+import './DataGrid.less';
+
+const defType: any = {
+  'NFTokenBurn': {
+    'fr': 'Destruction d\'un NFT.',
+    'en': 'Destroy a non-fungible token (NFT) object.',
+  },
+  'NFTokenMint': {
+    'fr': 'Création d\'un NFT.',
+    'en': 'Mint a non-fungible token (NFT) object.',
+  },
+  'NFTokenAcceptOffer': {
+    'fr': 'Offre acceptée pour ce NFT.',
+    'en': 'Accepted offer for this NFT.',
+  },
+  'NFTokenCreateOffer': {
+    'fr': 'Une offre a été créée.',
+    'en': 'Offer created.',
+  },
+  'NFTokenCancelOffer': {
+    'fr': 'Une offre a été annulée.',
+    'en': 'Offer cancelled',
+  },
+}
 const columns: GridColDef[] = [
   { 
     field: 'id',
     headerName: 'ID',
-    minWidth: 10
+    width: 5,
   },
   { 
     field: 'confirmed',
@@ -25,7 +50,8 @@ const columns: GridColDef[] = [
   { 
     field: 'type',
     headerName: 'Type',
-    minWidth: 155
+    minWidth: 155,
+    renderCell: (params: GridRenderCellParams) => <div><Tooltip title={defType[params.formattedValue] ? defType[params.formattedValue].en : ''} placement="top-start"><span>{params.formattedValue}</span></Tooltip></div>
   },
   { 
     field: 'from',
@@ -54,30 +80,21 @@ const columns: GridColDef[] = [
   },
 ];
 
-const rows = [
-  { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-  { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-  { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-  { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-  { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-  { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-  { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-  { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-];
-
 const buildRow = (
   rowTx: Transactions,
   index: number,
   ownerName: string,
-  ownerAddr: string) => {
+  ownerAddr: string,
+  names: {[key: string]: string}) => {
   const name = ownerName ? ownerName : ownerAddr;
+  const to = rowTx.tx.Owner && names && names[rowTx.tx.Owner] ? names[rowTx.tx.Owner] : rowTx.tx.Owner ? rowTx.tx.Owner : name;
+  const from = rowTx.tx.Account == ownerAddr ? name : names && names[rowTx.tx.Account] ? names[rowTx.tx.Account] : rowTx.tx.Account;
   const data = { 
     id: index,
     confirmed: displayDate(xrpl.rippleTimeToUnixTime(rowTx.tx.date), true),
     type: rowTx.tx.TransactionType,
-    from: rowTx.tx.Account == ownerAddr ? name : rowTx.tx.Account,
-    to: rowTx.tx.Owner ? rowTx.tx.Owner : name,
+    from,
+    to,
     amount: rowTx.tx.Amount ? xrpl.dropsToXrp(rowTx.tx.Amount) : '',
     fee: xrpl.dropsToXrp(rowTx.tx.Fee),
     id_hash: rowTx.tx.hash,
@@ -85,24 +102,24 @@ const buildRow = (
   return data;
 };
 
-if (typeof module !== "undefined") var xrpl = require('xrpl')
-
 type DataGridTxProps = {
 	loading: boolean;
   transactions?: Transactions[];
   ownerAddr: string;
   ownerName: string;
+  names?: {[key: string]: string};
 }
 
 const DataGridTx : React.FunctionComponent<DataGridTxProps> = (props) => {
 	return (
 		<div style={{ height: '400px', width: '100%' }}>
-			<Typography variant="h6">Tx History:</Typography>
+			<Typography variant="h6">Transactions</Typography>
 		  	{!props.loading && props.transactions && <DataGrid
+          style={{ border: 'none' }}
 		    	columns={columns}
 		    	rows={
             props.transactions.map(
-              (elt:Transactions, index: number) => buildRow(elt, index, props.ownerName, props.ownerAddr))}
+              (elt:Transactions, index: number) => buildRow(elt, index, props.ownerName, props.ownerAddr, props.names))}
 		    	pageSize={10}
 		    	rowsPerPageOptions={[10]}
 		    	disableSelectionOnClick

@@ -4,19 +4,33 @@ import { callApi } from "@utils/helpers";
 import { storageData, getStorage, rmStorage } from "@utils/localStorage";
 import { 
   getOffers,
-  getHistory,
+  getParents,
 } from "../api";
+
+import {
+  getObjInArray
+} from '@utils/helpers';
+
+import {
+  configOnChain,
+} from '@config';
 
 import {
   getOffersSuccess,
   getOffersFailure,
-  getHistorySuccess,
-  getHistoryFailure,
+  getParentsSuccess,
+  getParentsFailure,
+  getUrisSuccess,
 } from "../actions";
 
 import {
   TYPES_NFT,
+  Parents,
 } from "../types/NftTypes";
+
+import {
+  Uri,
+} from "../types/UriTypes";
 
 import {
   AppState,
@@ -24,8 +38,17 @@ import {
 
 function* getOffersWorker():any {
   try {
-    const nft = yield select((state: AppState) => state.nftReducer);
-    const res = yield getOffers(nft.tokenId);
+    const nftState = yield select((state: AppState) => state.nftReducer);
+    const userState = yield select((state: AppState) => state.userReducer);
+    const serverObj = getObjInArray(configOnChain, 'name', userState.user.server);
+    
+    const res = yield getOffers(serverObj.url, nftState.tokenId);
+    if (!res) {
+      yield put(getOffersFailure({
+        errorMsg: 'Connection timeout',
+      }));
+      return ;
+    }
     yield put(getOffersSuccess({ 
       buyOffers: res.nftBuyOffers, 
       sellOffers: res.nftSellOffers, 
@@ -37,21 +60,33 @@ function* getOffersWorker():any {
   }
 }
 
-function* getHistoryWorker():any {
+function* getParentsWorker():any {
   try {
-    const nft = yield select((state: AppState) => state.nftReducer);
-    const res = yield* callApi(getHistory, {
-      tokenId: nft.tokenId,
-    });
-    yield put(getHistorySuccess(res));
+    const nftState = yield select((state: AppState) => state.nftReducer);
+    const res = yield* callApi(
+      getParents, {
+        name: nftState.name, 
+      });
+    const parents = res ? res.ancestor : null;
+    if (parents && parents.children) {
+      // tree to list of array Uri
+      const newUris: Uri[] = [];
+      const getNode = (current: Parents, newUris: Uri[]) => {
+        newUris.push(current.elt.uri);
+        current.children.map((c: Parents) => getNode(c, newUris));
+      }
+      getNode(parents, newUris);
+      yield put(getUrisSuccess({ results: newUris }));
+    }
+    yield put(getParentsSuccess({ parents }));
   } catch (error) {
-    yield put(getHistoryFailure(error));
+    yield put(getParentsFailure({}));
   }
 }
 
 const nftSaga = [
   takeLatest(TYPES_NFT.GET_OFFERS, getOffersWorker),
-  takeLatest(TYPES_NFT.GET_HISTORY, getHistoryWorker),
+  takeLatest(TYPES_NFT.GET_PARENTS, getParentsWorker),
 ];
 
 export default nftSaga;

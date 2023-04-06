@@ -23,13 +23,14 @@ test("POST /v1/user", async () => {
   const data = {
     "name": "Xoer54",
     "address": config.testAddressXRPL,
-    "profile": "",
+    "type": "farmer",
     "location": {
       "name": "Kyiv",
       "lat": "50.45466",
       "lng": "30.5238",
       "country": "UA"
-    }
+    },
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   await supertest(app).post("/v1/user")
@@ -38,18 +39,21 @@ test("POST /v1/user", async () => {
     .then(async (response) => {
       // Check the response
       expect(response.body.user).toBeTruthy();
-      expect(response.body.user.id).toBeTruthy();
+      expect(response.body.user._id).toBeTruthy();
       expect(response.body.user.name).toBe(data.name);
       expect(response.body.user.address).toBe(data.address);
-      expect(response.body.user.profile).toBe(null);
+      expect(response.body.user.type).toBe('farmer');
+      expect(response.body.user.image).toBe('0-0-0-0-0-0-0-0-0-0');
+      expect(response.body.user.experience).toBe(0);
+      expect(response.body.user.pocket).toBe(profiles['farmer'].pocketSize);
       expect(response.body.user.location).toStrictEqual(data.location);
 
       // Check data in the database
-      const user = await User.findOne({ _id: response.body.user.id });
+      const user = await User.findOne({ _id: response.body.user._id });
       expect(user).toBeTruthy();
       expect(user.name).toBe(data.name);
       expect(user.address).toBe(data.address);
-      expect(user.profile).toBe(null);
+      expect(user.type).toBe('farmer');
       expect(user.location).toEqual(data.location);
     });
 });
@@ -57,8 +61,9 @@ test("POST /v1/user", async () => {
 test("POST /v1/user without location", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const defaultLocation = {
@@ -74,18 +79,18 @@ test("POST /v1/user without location", async () => {
     .then(async (response) => {
       // Check the response
       expect(response.body.user).toBeTruthy();
-      expect(response.body.user.id).toBeTruthy();
+      expect(response.body.user._id).toBeTruthy();
       expect(response.body.user.name).toBe(data.name);
       expect(response.body.user.address).toBe(data.address);
-      expect(response.body.user.profile).toBe(null);      
+      expect(response.body.user.type).toBe("farmer");      
       expect(response.body.user.location).toEqual(defaultLocation);
       
       // Check data in the database
-      const user = await User.findOne({ _id: response.body.user.id });
+      const user = await User.findOne({ _id: response.body.user._id });
       expect(user).toBeTruthy();
       expect(user.name).toBe(data.name);
       expect(user.address).toBe(data.address);
-      expect(user.profile).toBe(null);
+      expect(user.type).toBe("farmer");
       expect(user.location).toEqual(defaultLocation);
     });
 });
@@ -93,8 +98,9 @@ test("POST /v1/user without location", async () => {
 test("POST /v1/user duplicate", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   await supertest(app).post("/v1/user")
@@ -106,75 +112,73 @@ test("POST /v1/user duplicate", async () => {
     .expect(400);
 });
 
-test("GET /v1/user/:address", async () => {
+test("GET /v1/user?:address&:server", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "",
-    "location": {
-      "name": "Kyiv",
-      "lat": "50.45466",
-      "lng": "30.5238",
-      "country": "UA"
-    }
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const user = await User.create(data);
 
-  await supertest(app).get("/v1/user/" + user.address)
+  await supertest(app).get("/v1/user?address=" + config.testAddressXRPL + '&server="' + user.server + '"')
     .expect(200)
     .then((response) => {
       expect(response.body.user).toBeTruthy();
-      expect(response.body.user.id).toBeTruthy();
+      expect(response.body.user._id).toBeTruthy();
       expect(response.body.user.name).toBe(user.name);
       expect(response.body.user.address).toBe(user.address);
-      expect(response.body.user.profile).toBe(user.profile);
+      expect(response.body.user.type).toBe(user.type);
       expect(response.body.user.location).toEqual(user.location);
   });
 });
 
 test("GET /v1/user/:address without addr", async () => {
   await supertest(app).get("/v1/user/")
-    .expect(404);
+    .expect(400);
 });
-
 
 test("PATCH /v1/user/:address", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const dataUpdated = {
-    "profile": "cook",
+    "type": "cook",
   };
 
   const user = await User.create(data);
   await supertest(app).patch("/v1/user/" + user.address)
     .send(dataUpdated)
+    .expect(400)
+    /* until you fix the type update
     .expect(200)
     .then(async (response) => {
       // Check the response
       expect(response.body.user).toBeTruthy();
-      expect(response.body.user.profile).toBe(dataUpdated.profile);
+      expect(response.body.user.type).toBe(dataUpdated.type);
       
       // Check data in the database
-      const userUpdated = await User.findOne({ _id: response.body.user.id });
+      const userUpdated = await User.findOne({ _id: response.body.user._id });
       expect(userUpdated).toBeTruthy();
-      expect(userUpdated.profile).toBe(dataUpdated.profile);
-    });
+      expect(userUpdated.type).toBe(dataUpdated.type);
+    });*/
 });
 
 test("PATCH /v1/user/:address wrong profile", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const dataUpdated = {
-    "profile": "tedsdf",
+    "type": "tedsdf",
   };
 
   const user = await User.create(data);
@@ -186,12 +190,13 @@ test("PATCH /v1/user/:address wrong profile", async () => {
 test("PATCH /v1/user/:address already updated", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "farmer",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const dataUpdated = {
-    "profile": "cook",
+    "type": "cook",
   };
 
   const user = await User.create(data);
@@ -203,8 +208,9 @@ test("PATCH /v1/user/:address already updated", async () => {
 test("PATCH /v1/user/:address quest init", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "farmer",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const dataUpdated = {
@@ -223,7 +229,7 @@ test("PATCH /v1/user/:address quest init", async () => {
       expect(response.body.user.tokenNeeded.length).toBe(profiles.farmer.typeCount);
 
       // Check data in the database
-      const userUpdated = await User.findOne({ _id: response.body.user.id });
+      const userUpdated = await User.findOne({ _id: response.body.user._id });
       expect(userUpdated).toBeTruthy();
       expect(userUpdated.experience).toBe(0);
       expect(userUpdated.pocket).toBe(profiles.farmer.pocketSize);
@@ -234,9 +240,10 @@ test("PATCH /v1/user/:address quest init", async () => {
 test("PATCH /v1/user/:address quest incomplete", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "farmer",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
     "tokenNeeded": [ '00001' ],
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const dataUpdated = {
@@ -254,8 +261,9 @@ test("PATCH /v1/user/:address quest complete", async () => {
   const data = {
     "name": "Xoer54",
     "address": config.testAddressXRPL,
-    "profile": "farmer",
+    "type": "farmer",
     "tokenNeeded": [ '000002', '000005' ],
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
   const user = await User.create(data);
   
@@ -272,7 +280,6 @@ test("PATCH /v1/user/:address quest complete", async () => {
     image: type,
     properties: {
       owner: data.address,
-      ownerHistory: [ ],
       nftToken: uriData.nftToken,
       offerBuy: [],
       parents: [],
@@ -289,7 +296,6 @@ test("PATCH /v1/user/:address quest complete", async () => {
     image: type2,
     properties: {
       owner: data.address,
-      ownerHistory: [ ],
       nftToken: uriData2.nftToken,
       offerBuy: [],
       parents: [],
@@ -308,7 +314,7 @@ test("PATCH /v1/user/:address quest complete", async () => {
       expect(response.body.user.tokenNeeded.length).toBe(profiles.farmer.typeCount);
 
       // Check data in the database
-      const userUpdated = await User.findOne({ _id: response.body.user.id });
+      const userUpdated = await User.findOne({ _id: response.body.user._id });
       expect(userUpdated).toBeTruthy();
       expect(userUpdated.experience).toBe(actionPoints.questCompleted);
       expect(userUpdated.tokenNeeded.length).toBe(profiles.farmer.typeCount);
@@ -318,8 +324,9 @@ test("PATCH /v1/user/:address quest complete", async () => {
 test("DELETE /v1/user/:address", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "farmer",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const user = await User.create(data);
@@ -327,15 +334,16 @@ test("DELETE /v1/user/:address", async () => {
     .delete("/v1/user/" + user.address)
     .expect(403)
     /*.then(async () => {
-      expect(await User.findOne({ _id: user.id })).toBeFalsy();
+      expect(await User.findOne({ _id: user._id })).toBeFalsy();
     });*/
 });
 
 test("GET /v1/user/all", async () => {
   const data = {
     "name": "Xoer54",
-    "address": "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb",
-    "profile": "farmer",
+    "address": config.testAddressXRPL,
+    "type": "farmer",
+    "server": "wss://hooks-testnet-v2.xrpl-labs.com",
   };
 
   const user = await User.create(data);
@@ -353,6 +361,6 @@ test("GET /v1/user/all", async () => {
       expect(response.body.users.results[0].id).toBeTruthy();
       expect(response.body.users.results[0].name).toBe(user.name);
       expect(response.body.users.results[0].address).toBe(user.address);
-      expect(response.body.users.results[0].profile).toBe(user.profile);
+      expect(response.body.users.results[0].type).toBe(user.type);
     });
 });

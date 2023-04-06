@@ -16,17 +16,23 @@ import {
   GetTokens,
   GetTokensSuccess,
   GetTokensFailure,
-  GetRemoteTokens,
-  GetRemoteTokensSuccess,
-  GetRemoteTokensFailure,
+  GetRemoteAccount,
+  GetRemoteAccountSuccess,
+  GetRemoteAccountFailure,
+  GetRemoteAccountPayload,
+  RemoteAccountPayload,
+  RemoteAccountFailurePayload,
   GetRemoteTokensPayload,
   RemoteTokensPayload,
   RemoteTokensFailurePayload,
+  GetRemoteTokens,
+  GetRemoteTokensSuccess,
+  GetRemoteTokensFailure,
   Refresh,
   RefreshSuccess,
   RefreshFailure,
-  Logout,
-  ResetRemoteTokens,
+  ResetRemote,
+  ResetRemotePayload,
 } from "../types/AccountTypes";
 
 export function getAccount(data: GetAccountPayload): GetAccount {
@@ -86,6 +92,24 @@ export function getTokensFailure(data: TokensFailurePayload): GetTokensFailure {
   };
 }
 
+export function getRemoteAccount(data: GetRemoteAccountPayload): GetRemoteAccount {
+  return {
+    type: TYPES_ACCOUNT.GET_REMOTE_ACCOUNT,
+    payload: data,
+  };
+}
+export function getRemoteAccountSuccess(data: RemoteAccountPayload): GetRemoteAccountSuccess {
+  return {
+    type: TYPES_ACCOUNT.GET_REMOTE_ACCOUNT_SUCCESS,
+    payload: data,
+  };
+}
+export function getRemoteAccountFailure(data: RemoteAccountFailurePayload): GetRemoteAccountFailure {
+  return {
+    type: TYPES_ACCOUNT.GET_REMOTE_ACCOUNT_FAILURE,
+    payload: data,
+  };
+}
 export function getRemoteTokens(data: GetRemoteTokensPayload): GetRemoteTokens {
   return {
     type: TYPES_ACCOUNT.GET_REMOTE_TOKENS,
@@ -104,15 +128,10 @@ export function getRemoteTokensFailure(data: RemoteTokensFailurePayload): GetRem
     payload: data,
   };
 }
-
-export function logout(): Logout {
+export function resetRemote(data: ResetRemotePayload): ResetRemote {
   return {
-    type: TYPES_ACCOUNT.LOGOUT,
-  };
-}
-export function resetRemoteTokens(): ResetRemoteTokens {
-  return {
-    type: TYPES_ACCOUNT.RESET_REMOTE_TOKENS,
+    type: TYPES_ACCOUNT.RESET_REMOTE,
+    payload: data,
   };
 }
 export function doRefresh(): Refresh {

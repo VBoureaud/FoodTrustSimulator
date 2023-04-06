@@ -3,18 +3,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom"; 
 import { hot } from "react-hot-loader";
-import { profiles, levelDisplay } from "@utils/gameEngine";
 import { 
   logout,
   getTokens,
   getAccount,
   getUser,
   addUri,
-  updateUser,
+  createAd,
 } from "@store/actions";
 
 import { 
   mintToken,
+  updateUri,
   registerUri,
   getTokensXRPL,
 } from "@store/api";
@@ -22,191 +22,314 @@ import {
 import { 
   hashURI,
   unPad,
+  countTokenFromProfile,
+  getObjInArray,
+  decodeHashURI,
 } from "@utils/helpers";
 
-import { config } from "@config";
+import {
+  Uri
+} from '@store/types/UriTypes';
+import {
+  User
+} from '@store/types/UserTypes';
+
+import {
+  limitGame,
+  nameTypeToken,
+  getRecipePercent,
+  recipeCondition,
+} from "@utils/gameEngine";
+
+import { config, configOnChain } from "@config";
 
 import "@utils/TypeToken.less";
 import { AppState } from "@store/types";
 import Template from "@components/Template";
-import XRPLBridge from "@components/XRPLBridge";
 import Web3ProviderXRPL from "@components/Web3ProviderXRPL";
 
+import GameHoney from "@components/Game/GameHoney";
 import GameAddition from "@components/Game/GameAddition";
 import GameTickle from "@components/Game/GameTickle";
 import GameConstrain from "@components/Game/GameConstrain";
 import GameNoiseWave from "@components/Game/GameNoiseWave";
 import GameSubstraction from "@components/Game/GameSubstraction";
 import GameBrightness from "@components/Game/GameBrightness";
+import GameMixToken from "@components/Game/GameMixToken";
+import GameHeatToken from "@components/Game/GameHeatToken";
+import GameIceToken from "@components/Game/GameIceToken";
+import GameAd from "@components/Game/GameAd";
+import GameBoxToken from "@components/Game/GameBoxToken";
+import PocketFull from "@components/Game/PocketFull";
+import ActivityDisplay from "@components/ActivityDisplay";
 
-import Alert from "@mui/material/Alert";
-import Avatar from "@mui/material/Avatar";
-import Container from "@mui/material/Container";
+import Modal from '@mui/material/Modal';
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
-import BeenhereIcon from "@mui/icons-material/Beenhere";
-import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
-import Snackbar from "@mui/material/Snackbar";
-import CircularProgress from "@mui/material/CircularProgress";
 
+// Faq Btn
+import { FaqModal } from "@components/Faq";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
+//import './ActivityScene.less';
+if (typeof module !== "undefined") var xrpl = require('xrpl');
+
+type Game = {
+  e: any,
+  pocketShouldBeAvailable: boolean;
+}
 type GameMapper = {
-  [x: string]: any;
+  [x: string]: {
+    e: any;
+    pocketShouldBeAvailable: boolean;
+  };
 };
 
 const gameMapper: GameMapper = {
-  '000001': GameAddition,
-  '000002': GameTickle,
-  '000003': GameConstrain,
-  '000004': GameNoiseWave,
-  '000005': GameSubstraction,
-  '000006': GameBrightness,
-  '000007': GameAddition,
-  '000008': GameTickle,
-  '000009': GameConstrain,
-  '000010': GameNoiseWave,
-  '000011': GameSubstraction,
-  '000012': GameBrightness,
-  '000013': GameAddition,
-  '000014': GameTickle,
-  '000015': GameConstrain,
-  '000016': GameNoiseWave,
-  '000017': GameSubstraction,
-  '000018': GameBrightness,
-  '000019': GameAddition,
-  '000020': GameTickle,
-  '000021': GameConstrain,
-  '000022': GameNoiseWave,
-  '000023': GameSubstraction,
-  '000024': GameBrightness,
-  '000025': GameAddition,
-  '000026': GameTickle,
-  '000027': GameConstrain,
-  '001000': GameNoiseWave,
+  '000001': { e: GameHoney, pocketShouldBeAvailable: true },
+  '000002': { e: GameTickle, pocketShouldBeAvailable: true },
+  '000003': { e: GameConstrain, pocketShouldBeAvailable: true },
+  '000004': { e: GameNoiseWave, pocketShouldBeAvailable: true },
+  '000005': { e: GameSubstraction, pocketShouldBeAvailable: true },
+  '000006': { e: GameBrightness, pocketShouldBeAvailable: true },
+  '000007': { e: GameAddition, pocketShouldBeAvailable: true },
+  '000008': { e: GameTickle, pocketShouldBeAvailable: true },
+  '000009': { e: GameConstrain, pocketShouldBeAvailable: true },
+  '000010': { e: GameNoiseWave, pocketShouldBeAvailable: true },
+  '000011': { e: GameSubstraction, pocketShouldBeAvailable: true },
+  '000012': { e: GameBrightness, pocketShouldBeAvailable: true },
+  '000013': { e: GameHoney, pocketShouldBeAvailable: true },
+  '000014': { e: GameTickle, pocketShouldBeAvailable: true },
+  '000015': { e: GameConstrain, pocketShouldBeAvailable: true },
+  '000016': { e: GameNoiseWave, pocketShouldBeAvailable: true },
+  '000017': { e: GameHoney, pocketShouldBeAvailable: true },
+  '000018': { e: GameBrightness, pocketShouldBeAvailable: true },
+  '000019': { e: GameAddition, pocketShouldBeAvailable: true },
+  '000020': { e: GameTickle, pocketShouldBeAvailable: true },
+  '000021': { e: GameConstrain, pocketShouldBeAvailable: true },
+  '000022': { e: GameNoiseWave, pocketShouldBeAvailable: true },
+  '000023': { e: GameHoney, pocketShouldBeAvailable: true },
+  '000024': { e: GameBrightness, pocketShouldBeAvailable: true },
+  '000025': { e: GameSubstraction, pocketShouldBeAvailable: true },
+  '000026': { e: GameTickle, pocketShouldBeAvailable: true },
+  '000027': { e: GameConstrain, pocketShouldBeAvailable: true },
+  '000028': { e: GameBrightness, pocketShouldBeAvailable: true },
+  '001000': { e: GameBrightness, pocketShouldBeAvailable: true },// recipe
+  'freeze': { e: GameIceToken, pocketShouldBeAvailable: false },//cook
+  'bake': { e: GameHeatToken, pocketShouldBeAvailable: false },//cook
+  'mix': { e: GameMixToken, pocketShouldBeAvailable: true },//cook
+  'ad': { e: GameAd, pocketShouldBeAvailable: false },//manager
+  '002000': { e: GameTickle, pocketShouldBeAvailable: true },// manager_coin
+  '002001': { e: GameBoxToken, pocketShouldBeAvailable: false },// manager_box
 };
 
 type Props = {};
-
-const snackDialog = {
-  'newNft': 'New NFT added to your collection.',
-  'badQuest': 'Incomplete quest.',
-  'goodQuest': 'Quest complete!',
-};
 
 const ActivityScene: React.FC<Props> = () => {
   const dispatch = useDispatch();
   const stateAccount = useSelector((state: AppState) => state.accountReducer);
   const stateUser = useSelector((state: AppState) => state.userReducer);
+  const stateUri = useSelector((state: AppState) => state.uriReducer);
   const dispatchLogout = compose(dispatch, logout);
   const dispatchGetTokens = compose(dispatch, getTokens);
-  const dispatchAccount = compose(dispatch, getAccount);
   const dispatchUser = compose(dispatch, getUser);
-  const dispatchUpdateUser = compose(dispatch, updateUser);
   const dispatchAddUri = compose(dispatch, addUri);
+  const dispatchCreateAd = compose(dispatch, createAd);
+  const [loader, setLoader] = useState(false);
   const [redirctTo, setRedirctTo] = useState(false);
+  const [openModal, setOpenModal] = React.useState(false);  
+  const [activity, setActivity] = React.useState(null);  
+  const [playing, setPlaying] = React.useState(false);  
   const [nftWinner, setNftWinner] = useState(false);
+  const [typeWinner, setTypeWinner] = useState(null);
   const [payloadXRPL, setPayloadXRPL] = useState(null);
-  const [msgSnackBar, setMsgSnackBar] = useState(snackDialog.newNft);
-  const [openSnack, setOpenSnack] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [nftUri, setNftUri] = useState('');
-  const isLimitPocket = stateAccount.nfts && stateUser.user ? stateAccount.nfts.length == stateUser.user.pocket : false;
+  const [nftUri, setNftUri] = useState('');// register a new uri
+  const [urisToUpdate, setUrisToUpdate] = useState([]); // update list of uri
+  const [collection, setCollection] = useState(null);
+  const [parents, setParents] = useState([]);
+  const [helpBox, setHelpBox] = useState([]);
+  
 
   useEffect(() => {
     if (!stateUser.user || !stateUser.user.name) {
       setRedirctTo(true);
+    } else if (stateUri.uris && !collection) {
+      updateCollection();
     }
-  })
+  });
+
+  useEffect(() => {
+    if (stateUri.uris) {
+      updateCollection();
+    }
+  }, [stateUri.uris]);
+
+  useEffect(() => {
+    //console.log({ playing });
+  }, [playing]);
 
   // MintNft
   useEffect(() => {
-    if (nftWinner && nftUri) {
+    if (nftUri) { // mint a type
       const payload = mintToken(
         nftUri
       );
       setPayloadXRPL(payload);
     }
-  }, [nftWinner])
+  }, [nftUri]);
 
-  useEffect(() => {
-    if (stateUser.quest && !stateUser.loadingUpdate) {
-      if (!stateUser.questSuccess && !openSnack) {
-        setMsgSnackBar(snackDialog.badQuest);
-        setOpenSnack(true);
-      } else if (stateUser.questSuccess && !openSnack) {
-        setMsgSnackBar(snackDialog.goodQuest);
-        setOpenSnack(true);
+  const updateCollection = () => {
+    if (stateUri.uris) {
+      setCollection(
+        stateUri.uris.filter(
+          e => e.properties.owner === stateUser.user.address
+            && e.validity)
+      );
+    }
+  }
+
+  const onLost = () => {
+    setPlaying(false);
+    setOpenModal(false);
+  }
+
+  const onVictory = async (
+      type: string,
+      typeToken: string,
+      data: any) => {
+    setPlaying(false);
+    setLoader(true);
+    setOpenModal(false);
+    //setActivity(null);
+
+    // todo refacto
+    if (!isNaN(parseInt(type)) && !data) { // mint a type
+      setNftUri(hashURI(stateAccount.address, type));
+    }
+    else if (typeof data === 'object' && data.length > 0) { // cook ice/heat/mix
+      if (typeToken === 'mix') { // parents
+        // look for recipes
+        const recipes = collection.filter((e: Uri) => e.validity && e.image.split('#')[0] === '001000').map((e: Uri) => e.properties.details);
+        const details = data.map((e: string) => getObjInArray(collection, 'name', e)).map((e: Uri) => e.image.split('#')[0]).sort();
+        const recipePercent = recipeCondition(recipes, details);
+        const recipe = getRecipePercent(nameTypeToken, recipePercent);
+        setParents(data);
+        setNftUri(hashURI(stateAccount.address, recipe.id));
+      } else if (type === '002001') { // parents box
+        const details = data.map((e: string) => getObjInArray(collection, 'name', e)).map((e: Uri) => e.image.split('#')[0]).sort();
+        setParents(data);
+        setNftUri(hashURI(stateAccount.address, type));
+      } else { // ice or heat
+        for (let i = 0; i < data.length; i++) {
+          const uriUpdated = await updateUri({ 
+            name: data[i],
+            action: typeToken,
+          });
+          if (!uriUpdated) throw new Error("Request Fail");
+          dispatchAddUri(uriUpdated);
+        }
       }
     }
-    return () => {};
-  }, [stateUser.loadingUpdate])
-
-  const handleQuest = () => {
-    const data = { quest: true };
-    setOpenSnack(false);
-    dispatchUpdateUser(data);
-  }
-
-  const handleCloseSnack = (event: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
+    else if (typeToken == 'ad' && data) { // manager
+      dispatchCreateAd({
+        ad: {
+          message: data.message,
+          addressTo: data.user[0].address,
+        }
+      });
     }
-    setOpenSnack(false);
-  };
-  const actionSnack = (
-    <React.Fragment>
-      <IconButton
-        size="small"
-        aria-label="close"
-        color="inherit"
-        onClick={handleCloseSnack}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </React.Fragment>
-  );
-
-  const onVictory = (type: string) => {
-    setPlaying(false);
-    setNftUri(hashURI(stateAccount.address, type));
-    setNftWinner(true);
+    setLoader(false);
   }
+
   const handleInit = () => {
     setNftUri('');
-    setNftWinner(false);
     setPayloadXRPL(null);
+    setParents([]);
   }
+
   const handleTransaction = async (data: any) => {
     try {
-      const nfts = await getTokensXRPL({ address: stateAccount.address });
-      if (!nfts || !nfts.result || !nfts.result.account_nfts)
+      setLoader(true);
+      const totalBefore = stateAccount.nfts.length;
+      const server = getObjInArray(configOnChain, 'name', stateUser.user.server);
+      const nfts = await getTokensXRPL({ server: server.url, address: stateAccount.address });
+      if (!nfts) {
+        setLoader(false);
         throw new Error("Request Fail");
-      const tokenId = nfts.result.account_nfts[nfts.result.account_nfts.length - 1].NFTokenID;
-      const uri = await registerUri({ name: nftUri, nftToken: tokenId });
-      if (!uri) throw new Error("Request Fail");
-    
-      setMsgSnackBar(snackDialog.newNft);
-      setOpenSnack(true);
+      }
+
+      const tokenId = nfts[nfts.length - 1].NFTokenID;
+      const uri = await registerUri({
+        name: xrpl.convertStringToHex(nftUri),
+        nftToken: tokenId,
+        parents,
+      });
+      if (!uri) {
+        setLoader(false);
+        throw new Error("Request Fail");
+      }
       dispatchAddUri(uri);
       // reload
-      dispatchGetTokens({ address: stateAccount.address });
-      dispatchAccount({ address: stateAccount.address });
       dispatchUser({ address: stateAccount.address });
       // close
       handleInit();
+      setLoader(false);
     } catch (error) {
-      console.log({ error });
+      setLoader(false);
+      // console.log({ error });
       return false;
     }
+  }
+
+  const launchActivity = (typeToken: string) => {
+    const Type = gameMapper[typeToken].e;
+    const pocketFull = stateUri.uris.filter(e => e.validity && e.properties.owner === stateAccount.address).length >= stateUser.user.pocket;
+    const dayMillisec = 24 * 60 * 60 * 1000;
+    const howManyRecipeToday = stateUri.uris.filter(e => e.validity 
+        && e.properties.owner === stateAccount.address
+        && e.image === '001000'
+        && new Date().getTime() - new Date(decodeHashURI(xrpl.convertHexToString(e.name)).date).getTime() < dayMillisec);
+    
+    if (gameMapper[typeToken].pocketShouldBeAvailable && pocketFull) {
+      setActivity(
+        <PocketFull
+          title={"Pocket Full"}
+          message={"You need more space before to play this game"}
+        />
+      );
+    } else if (typeToken === '001000' && howManyRecipeToday.length >= limitGame.recipeCreatedByDay) {
+      setActivity(
+        <PocketFull
+          title={"Recipe Full"}
+          message={`You can only create ${limitGame.recipeCreatedByDay} recipe${limitGame.recipeCreatedByDay > 1 ? 's' : ''} every 24 hours.`}
+        />
+      );
+    }
+      else {
+      setActivity(
+        <Type 
+          onLaunch={(isPlay: boolean) => setPlaying(isPlay)}
+          canPlay={!playing}
+          type={typeToken}
+          onVictory={(type: string, data: any) => onVictory(type, typeToken, data)}
+          onLose={onLost}
+          tokenName={nameTypeToken[typeToken] ? nameTypeToken[typeToken].name : 'Unknown'}
+          collection={collection}
+          users={stateUser.users.results}
+        />
+      );
+    }
+    setOpenModal(true);
   }
 
   const render =
     <Template
         isLogged={!!stateAccount.address}
         logout={dispatchLogout}
+        user={stateUser.user}
+        noContainer
+        className="backgroundGrey"
       >
       <Web3ProviderXRPL
         handleClose={handleInit}
@@ -215,112 +338,65 @@ const ActivityScene: React.FC<Props> = () => {
         walletType={stateUser.walletType}
         currentJwt={stateUser.jwt}
         payload={payloadXRPL}
-        xrplUrl={config.xrpWss}
+        xrplUrl={stateUser.user && stateUser.user.server ? getObjInArray(configOnChain, 'name', stateUser.user.server).url : config.xrpWss}
         //errorMsg={stateUser.errorMsg}
       />
 
-      <Container sx={{ mb: 5 }}>
-        <Alert sx={{ background: '#3c5e82' }} severity="info">
-          How it work? <span style={{ fontWeight: 'bold' }}>Play</span> to win new NFT to add in your <span style={{ fontWeight: 'bold' }}>collection</span>.
-        </Alert>
+      {helpBox && helpBox.length > 0 &&
+        <FaqModal
+          shouldInclude={helpBox}
+          openDelay={0}
+          onClose={() => setHelpBox([])}
+        />}
 
-        <Box sx={{ flexGrow: 1, mt: 3, mb: 10 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Typography sx={{ color: 'black' }} variant="h2">Quest: catch them all !</Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                {stateUser.user && stateUser.user.tokenNeeded && stateUser.user.tokenNeeded.map((e, index) => 
-                  <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Box sx={{ 
-                      padding: 2,
-                      background: '#faf8eb',
-                      border: '1px solid #c8c4c4',
-                      m: 1,
-                      borderRadius: 4,
-                    }}>
-                      <Box 
-                        className={"nftTokenMiddle middleType"+ unPad(e)}
-                      ></Box>
-                    </Box>
-                    {1 + index != stateUser.user.tokenNeeded.length && <Typography sx={{ color: 'black' }} variant="h2">+</Typography>}
-                    {1 + index == stateUser.user.tokenNeeded.length && <Typography sx={{ color: 'black' }} variant="h2">=</Typography>}
-                    {1 + index == stateUser.user.tokenNeeded.length && 
-                      <Box sx={{ 
-                        padding: 5,
-                        background: '#faf8eb',
-                        border: '1px solid #c8c4c4',
-                        color: '#333',
-                        m: 1,
-                        borderRadius: 4,
-                        cursor: 'pointer',
-                        '&:hover': { color: 'green' },
-                      }}
-                        onClick={handleQuest}
-                      >
-                        {!stateUser.loadingUpdate && <BeenhereIcon sx={{ fontSize: 50 }} />}
-                        {stateUser.loadingUpdate && <CircularProgress sx={{ fontSize: 40 }} />}
-                      </Box>}
-                  </Box>
-                )}
-              </Box>
-            </Grid>
-          </Grid>
+      {stateUser.user && <ActivityDisplay
+        width={window.innerWidth}
+        height={window.innerHeight - 120}
+        type={stateUser.user.type}
+        tokenMintable={stateUser.user.tokenBuildable}
+        onLaunchActivity={launchActivity}
+        loading={stateUser.loadingGetOne || loader}
+      >
+        <Box
+          sx={{ 
+            position: 'absolute',
+            margin: 'auto',
+            top: '10px',
+            left: '10px',
+            width: window.innerWidth,
+          }}
+          onClick={() => setHelpBox([10, 16, 17, 18, 19, 20, 21, 22, 23, 24])}>
+          <HelpOutlineIcon sx={{ cursor: 'pointer', display: 'block', color: "#1936a6" }} />
         </Box>
+      </ActivityDisplay>}
 
-        {isLimitPocket && 
-          <Paper elevation={3} sx={{ mt: 3, padding: 5 }}>
-            <Typography variant="h4">
-              Pockets full!
+      <Modal
+        open={openModal}
+        onClose={() => !playing && setOpenModal(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        style={{ display: 'flex', alignItems: 'center' }}
+      >
+        <Box sx={{
+            width: '98vw',
+            margin: 'auto',
+            marginTop: '10px',
+            padding: '15px',
+            background: 'white',
+            color: 'black',
+            borderRadius: '5px',
+          }}>
+          {activity && activity}
+          {!activity && <>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Something went wrong.
             </Typography>
-            <Typography variant="h5">
-              Earn level to expand your capacities.
-            </Typography>
-          </Paper>
-        }
-
-        {!isLimitPocket && stateUser.user && stateUser.user.tokenBuildable && stateUser.user.tokenBuildable.map((item, key) => {
-          const Type = gameMapper[item];
-          return <Box key={key} sx={{ flexGrow: 1 }}>
-              <Paper elevation={3} sx={{ mt: 3, minHeight: 280, padding: 2 }}>
-                <Box sx={{ display: 'flex' }}>
-                  <Avatar sx={{ 
-                    height: '100px',
-                    width: '100px',
-                    border: '1px solid black',
-                    position: 'relative',
-                    right: '30px',
-                    bottom: '30px',
-                    background: '#faf8eb'
-                  }}>
-                    <Box 
-                      className={"nftTokenMiddle middleType"+ unPad(item)}
-                    ></Box>
-                  </Avatar>
-                  <Typography sx={{ position: 'relative', right: '20px', bottom: '10px', fontSize: '15px' }} variant="h6">PLAY TO WIN IT - COST ESTIMATED 0.00012 XRP</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                  <Type 
-                    onLaunch={() => setPlaying(true)}
-                    canPlay={!playing}
-                    type={item}
-                    onVictory={onVictory}
-                  />
-                </Box>
-              </Paper>
-          </Box>})}
-
-        <Snackbar
-          open={openSnack}
-          sx={{ borderRadius: '4px', border: '4px solid white', background: 'white' }}
-          autoHideDuration={6000}
-          onClose={handleCloseSnack}
-          message={msgSnackBar}
-          action={actionSnack}
-        />
-      </Container>
+          </>}
+        </Box>
+      </Modal>
     </Template>;
 
-  return redirctTo ? <Redirect to="/" /> : render;
+  return redirctTo ? <Redirect to="/profile" /> : render;
 }
 
 export default hot(module)(ActivityScene);

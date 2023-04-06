@@ -7,7 +7,7 @@ import NativeSelect from '@mui/material/NativeSelect';
 type SelectFieldProps = {
   onChange?: Function;
   options: string[];
-  defaultValue: string;
+  value?: string;
 };
 
 const SelectField : React.FunctionComponent<SelectFieldProps> = (props) => {
@@ -17,11 +17,11 @@ const SelectField : React.FunctionComponent<SelectFieldProps> = (props) => {
   }
 
   return (
-    <Box sx={{ minWidth: 120, background: '#525d6c', padding: '3px 10px' }}>
+    <Box sx={{ borderRadius: '4px', minWidth: 120, background: '#525d6c', padding: '3px 10px' }}>
       <FormControl fullWidth>
         <NativeSelect
-          defaultValue={props.defaultValue}
           onChange={handleChange}
+          value={props.value}
         >
           {props.options && props.options.map((e, i) => 
             <option key={i} value={e}>{e.replace(/^\w/, c => c.toUpperCase())}</option>

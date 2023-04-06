@@ -36,7 +36,23 @@ app.use(mongoSanitize());
 app.use(compression());
 
 // enable cors
-app.use(cors());
+//Enable CORS Requests
+var whitelist = [
+  config.clientUrl,
+  config.clientUrl + '/',
+  'https://beta.foodtrustsimulator.app',
+  'https://beta.foodtrustsimulator.app/'];
+var corsOptions = {
+  origin: function (origin, callback) {
+    callback(null, true);
+    // if (whitelist.indexOf(origin) !== -1) {
+    //   callback(null, true)
+    // } else {
+    //   callback(new Error('Not allowed by CORS'))
+    // }
+  }
+}
+app.use(cors(corsOptions));
 app.options('*', cors());
 
 // limit repeated failed requests to uri endpoints
@@ -49,7 +65,7 @@ app.use('/v1', routes);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
-  next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));
+  next(new ApiError(httpStatus.NOT_FOUND, '404 - Not found'));
 });
 
 // convert error to ApiError, if needed

@@ -7,24 +7,30 @@ components:
           type: string
         name:
           type: string
+        type:
+          type: string
+        image:
+          type: string
         address:
           type: string
-        profile:
+        server:
           type: string
         experience:
           type: number
-        transactions:
-          type: number
         pocket:
+          type: number
+        transactions:
           type: number
         tokenBuildable:
           type: array
           items:
             type: array
-        tokenNeeded:
+        lastCo: 
+            type: string
+        burnout:
           type: array
           items:
-            type: array
+            type: string
         location:
           type: object
           properties:
@@ -40,8 +46,8 @@ components:
         id: 5ebac534954b54139806c112
         name: "Xeor554"
         address: "rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb"
-        profile: "0"
-        
+        type: "farmer"
+
     City:
       type: object
       properties:
@@ -88,12 +94,14 @@ components:
           type: string
         image:
           type: string
+        validity:
+          type: boolean
         properties:
           type: object
           properties:
             owner:
               type: string
-            ownerHistory:
+            history:
               type: array
             nftToken:
               type: string
@@ -101,6 +109,12 @@ components:
               type: array
             parents:
               type: array
+            durability:
+              type: number
+            power:
+              type: number
+            details:
+              type: string
       example:
         id: 5ebac534954b54139806c112
         name: 'rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb1646947693887000001'
@@ -108,11 +122,13 @@ components:
         image: '000001'
         properties:
           owner: 'rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb'
-          ownerHistory: [ 'rNgMEpqdVUgReD8ce8UBfHji7wLsNpFAbb' ]
+          history: []
           nftToken: '0008000008AB50D2C6251686E42480AF556F5FEF110C0CCE0000099B00000000'
           offerBuy: []
           parents: []
-
+          durability: 2
+          power: 1
+          details: ''
     Users:
       type: array
       items:

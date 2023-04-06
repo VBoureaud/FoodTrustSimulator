@@ -18,6 +18,7 @@ type GameConstrainProps = {
     onVictory?: Function;
     canPlay?: boolean;
     onLaunch?: Function;
+    tokenName?: string;
 };
 
 const GameConstrain: React.FunctionComponent<GameConstrainProps> = (props) => {
@@ -122,7 +123,7 @@ const GameConstrain: React.FunctionComponent<GameConstrainProps> = (props) => {
         if (props.canPlay)
             setStep(1);
         if (props.onLaunch)
-            props.onLaunch();
+            props.onLaunch(true);
     };
     
     return (
@@ -131,7 +132,7 @@ const GameConstrain: React.FunctionComponent<GameConstrainProps> = (props) => {
                 <Box onClick={handleLaunch}>
                     <Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play</Typography>
                     {props.cost && <Typography variant="h6">Cost estimated {props.cost} XRP</Typography>}
-                    <Typography variant="body1">Find a way to exit.</Typography>
+                    <Typography variant="body1"><b>Constrain Game</b> - Find a way to exit to win{props.tokenName ? ' a ' + props.tokenName : ''}.</Typography>
                 </Box>}
             {step == 1 &&
                 <Box ref={containDiv} sx={{ width: '100%' }}>
@@ -140,7 +141,7 @@ const GameConstrain: React.FunctionComponent<GameConstrainProps> = (props) => {
                 </Box>}
             {step == 2 && <Box>
                 <Typography variant="h2" sx={{ cursor: 'pointer' }}>You Win!</Typography>
-                <CircularProgress sx={{ display: 'block', margin: 'auto', color: "white" }} />
+                <CircularProgress sx={{ display: 'block', margin: 'auto', color: "black" }} />
             </Box>}    
         </Box>
     )

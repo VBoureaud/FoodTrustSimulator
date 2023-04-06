@@ -9,10 +9,10 @@ const ApiError = require('../utils/ApiError');
  * @param {String} address
  * @returns {Promise<Account_NFTS>}
  */
-const getAccountNFTS = async (address) => {
+const getAccountNFTS = async (address, server) => {
   try {
-    const client = new xrpl.Client(config.xrplUrl);
-    await client.connect()
+    const client = new xrpl.Client(server ? server : config.xrplUrl, { connectionTimeout: 10000 });
+    await client.connect();
 
     const nfts = await client.request({
       method: "account_nfts",
@@ -58,20 +58,21 @@ const getAccountNFTS = async (address) => {
 };
 
 /**
- * Get Buy Offers for a NFTtoken from XRPLedger
+ * Get Buy or Sell Offers for a NFTtoken from XRPLedger
  * @param {String} tokenid
+ * @param {String} server
  * @returns {Promise<OffersNFT>}
  */
-const getOffersNFT = async (tokenid) => {
+const getOffersNFT = async (tokenid, server, isBuy=true) => {
   try {
-    const client = new xrpl.Client(config.xrplUrl);
+    const client = new xrpl.Client(server ? server : config.xrplUrl, { connectionTimeout: 10000 });
     await client.connect();
-    const nftBuyOffers = await client.request({
-        method: "nft_buy_offers",
+    const nftOffers = await client.request({
+        method: isBuy ? "nft_buy_offers" : "nft_sell_offers",
         nft_id: tokenid
       });
-    if (nftBuyOffers && nftBuyOffers.result)
-        return nftBuyOffers.result.offers;
+    if (nftOffers && nftOffers.result)
+        return nftOffers.result.offers;
     throw new ApiError(httpStatus.BAD_REQUEST, 'TokenId not found');
   } catch (error) {
     //console.log({ error });

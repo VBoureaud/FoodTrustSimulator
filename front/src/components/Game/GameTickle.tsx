@@ -18,6 +18,7 @@ type GameTickleProps = {
     onVictory?: Function;
     canPlay?: boolean;
     onLaunch?: Function;
+    tokenName?: string;
 };
 
 const GameTickle : React.FunctionComponent<GameTickleProps> = (props) => {
@@ -44,7 +45,7 @@ const GameTickle : React.FunctionComponent<GameTickleProps> = (props) => {
         let timeout: ReturnType<typeof setTimeout>;
         timeout = setTimeout(() => {
           setStep(0);
-        }, 5000);
+        }, 3500);
 
         // like componentDidUnMount
         return () => clearTimeout(timeout);
@@ -106,7 +107,7 @@ const GameTickle : React.FunctionComponent<GameTickleProps> = (props) => {
         if (props.canPlay)
             setStep(1);
         if (props.onLaunch)
-            props.onLaunch();
+            props.onLaunch(true);
     };
     
     return (
@@ -115,7 +116,7 @@ const GameTickle : React.FunctionComponent<GameTickleProps> = (props) => {
                 <Box onClick={handleLaunch}>
                     <Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play</Typography>
                     {props.cost && <Typography variant="h6">Cost estimated {props.cost} XRP</Typography>}
-                    <Typography variant="body1">Click to move.</Typography>
+                    <Typography variant="body1"><b>Tickle Game</b> - Find a way to go black dot to win{props.tokenName ? ' a ' + props.tokenName : ''}.</Typography>
                 </Box>}
             {step == 1 &&
                 <Box ref={containDiv} sx={{ width: '100%' }}>
@@ -124,7 +125,7 @@ const GameTickle : React.FunctionComponent<GameTickleProps> = (props) => {
                 </Box>}
             {step == 2 && <Box>
                 <Typography variant="h2" sx={{ cursor: 'pointer' }}>You Win!</Typography>
-                <CircularProgress sx={{ display: 'block', margin: 'auto', color: "white" }} />
+                <CircularProgress sx={{ display: 'block', margin: 'auto', color: "black" }} />
             </Box>}
         </Box>
     )
