@@ -1,13 +1,14 @@
 ![Banner](./front/assets/images/banner.png)
 
-/!\ Work in progress. Discover soon beta version, including the milestone of the XRPL Grant 2022.
-
-# FoodTrust Simulator XRPL
+# Food Trust Simulator
 
 A project developed during XRPL Hackathon 2022, which attempts to illustrate the interactions and traceability around the food sphere in a blockchain ecosystem proposed by XRPL.
 
-It works as a game where everyone with an XRPLedger account can play on the NFT-Devnet. The game offers possibilities to mint nftTokens which refer to unique ingredients. Then you can trade with others on the plateform. The main functionality lies in the traceability of ingredients during exchanges, thanks to the management of URIs implemented according to EIP-1155.
-
+Follow the journey of ingredients from creation to consumers as proof of quality, illustrated with a game. The game popularize supply-chain as well as blockchain concepts through tradeable, earnable
+NFTs obtained by playing mini-games and competition with others players.
+Personnalize your way of learning by creating a specific profile between Farmer, Manager or Cook. 
+Each profile offers a different gaming experience and each ingredient is tracked and displayed in real time on a world map as proof of quality.
+In addition to being a game, the goal of this project is to build an educational plateform to teach the fundamentals of the possibilities and capabilities of the blockchain.
 
 ## Table of Contents
 1. [Dependencies](#dependencies)
@@ -15,19 +16,18 @@ It works as a game where everyone with an XRPLedger account can play on the NFT-
 3. [Installation and launch](#installation-and-launch)
 4. [Documentation](#documentation)
 5. [Tests](#test)
-6. [Demo](#demo)
+6. [Beta](#beta)
 7. [In the Future](#in-the-future)
 8. [Known issues](#known-issues)
 8. [Credits](#credits)
 9. [Contributing](#contributing)
 10. [License](#license)
 
-
 ## Usage
 
 #### Dependencies
 
-Before running FoodTrust Simulator the following dependencies need to be installed.
+Before running Food Trust Simulator the following dependencies need to be installed.
 
 | Dependencies | Version |
 | ------------ | ------- |
@@ -38,8 +38,14 @@ Before running FoodTrust Simulator the following dependencies need to be install
 ### How does it work
 
 Use your XRPL Account on the web application in pair with game server.
-Both communicate with XRPLedger, with a WebSocket from the front and JSON-RPC requests from the server, to manage the account and maintain consistency.
-Authentication is not yet integrated with Xumm. You will need to provide your secret credentials for each required action, as we never save them. 
+You can connect with Xumm Wallet, Gem Wallet or even a Bridge Wallet that offer the possibility of connecting directly with your identifiers.
+Frontend and Backend communicate with XRPLedger, with a WebSocket, to manage the account and maintain consistency.
+
+From a game perspective, you connect into a game by choosing a role in the food sphere of the supply chain.
+Then you play to create NFTs (mint) that you can trade with other players to complete a quest and gain levels. Some features you will find are: the ability to merge NFTs from ingredients to the recipe, track each step in the history of an NFT illustrated with a family tree, create a personalized profile, earn badges based on your success, to create Boxes of NFTs, to better understand the transaction, sustainability and transparency in a blockchain context.
+The main goal is to be the first to reach level 100.
+All the conditions for gaining experience are explained on a scoreboard and a faq.
+Discover another way to learn blockchain by playing.
 
 When you mint a new token, it's registered in XRPL and on the game server where the link between them is the generated URI as follow:
 ```
@@ -52,6 +58,7 @@ rNCFjv8Ek5oDrNiMJ3pw6eLLFtMjZLJnf2 1647343480246 000005
 ```
 On XRPL, see how NFT works: [official XLS-20d Non-Fungible Token documentation](https://github.com/XRPLF/XRPL-Standards/discussions/46).
 On Game Server, URI metaData is implemented by following [ERC-1155 Metadata](https://eips.ethereum.org/EIPS/eip-1155).
+
 
 ### Installation and launch
 
@@ -86,44 +93,40 @@ $ cd server
 $ npm run test
 ```
 
-### Demo
+### Beta
 
-There is a live demo running on NFT-Devnet. You can find it [here](https://foodtrust.boureaud.com/)
-It is hosted on Heroku, MongoDB Atlas and OVH.
+Beta is already launched on Testnet. You can find it [here](https://beta.foodtrustsimulator.app/)
+It is hosted on Vercel, MongoDB Atlas and OVH.
 
 ### In the Future
 Still a lot of ideas that I would like to implement:
 
 | Ideas        |
 |--------------|
-| Warn when you update a level |
-| Warn when you win a new badge |
-| Warn when a offer is accepted |
-| Subscribe to the transaction of your XRPL account to be notified when you have a new offer |
-| View your quest & progress in the navigation bar |
-| Show user-buildable ingredients directly in MarketPage |
-| Trade NFTokens directly, without XRP Currency |
 | Deadline for offers |
 | New and more mini-games |
-| Dont scroll back when you click on an User profil from Market Page and come back |
-| More details for history token |
-| Display users name wherever address is only displayed |
-| Calcul from XRPL cost for each transactions |
-| Integrate XUMM authentication |
-| Merge two NFTs into a new one |
+| Each user can choose the color from the collection that updates their profile color point on the map | 
+| Add more information on-chain with the URI |
+| Mint for other player |
+| Personnal Items for picture profil will be NFTs assets |
+| Develop a transfer fee strategie for players |
+| Create an Escrow strategie |
+| Issue a fungible token dedicate for the game |
+| Sort collection by longevity |
 
 ### Known issues
 To be corrected in the next version. 
 
 | Issues       |
 |--------------|
-| Sign up with an account that already has an nfts collection will break the count  |
-| Leaving the website while creating a new NFT may lose the URI on game server.  |
-| Catch Timeout from XRPL |
 | Some elements are not yet responsive |
-| console.error: Serialized transaction does not match original txJSON => XRPL Code Refactoring since 1.9.0 |
+| When you accept an offer from a remote token, the remote profile is not updated |
+| When you do a sell offer lower than a buy offer the NFT became invalide on-game |
+| Quest limitation is sometime NaN |
+| Insufficient fund on Xumm |
 
-Find an issue ? Contact me at valentin@boureaud.com
+
+Find an issue ? Contact us at contact@foodtrustsimulator.app
 
 ## Credits
 Some awesome libraries/projects help power this one:
@@ -138,7 +141,6 @@ Some awesome libraries/projects help power this one:
 * [Front Boilerplate](https://github.com/codesbiome/react-webpack-typescript-2022)
 * [Server Boilerplate](https://github.com/codesbiome/react-webpack-typescript-2022)
 * [List of Cities](https://github.com/lutangar/cities.json)
-* and many more.. look at package.json
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
@@ -148,6 +150,5 @@ Please make sure to update tests as appropriate.
 [MIT](https://choosealicense.com/licenses/mit/)
 
 ##
-
 
 ![Transactions](./front/assets/images/transactions.png)
