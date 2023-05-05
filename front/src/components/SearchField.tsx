@@ -109,7 +109,7 @@ const SearchField : React.FunctionComponent<SearchFieldProps> = (props) => {
 			/>
       {(props.loading || loading) && <Box sx={{ display: 'flex', justifyContent: 'center', padding: '5px', alignItems: 'center' }}>
           <CircularProgress size={20} sx={{ 
-            color: "white",
+            color: "yellow",
             position: "relative",
             bottom: '2px',
           }} />

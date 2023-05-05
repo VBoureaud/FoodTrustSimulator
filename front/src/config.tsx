@@ -1,6 +1,6 @@
 export const configUrl = {
   frontV1: 'https://foodtrustsimulator.app',
-  frontDev: 'https://dev.foodtrustsimulator.app',
+  frontDev: 'https://beta.foodtrustsimulator.app',
   serverV1: 'https://foodtrustserverdev.vercel.app/v1',
   serverDev: 'https://foodtrustserverdev.vercel.app/v1',
   wsUrl: 'ws://localhost:3032',
@@ -53,7 +53,7 @@ export const config = {
     process.env.NODE_ENV === "development" ? "ws://localhost:3032" : configUrl.wsUrl,
   xrpURL: 'https://s.altnet.rippletest.net:51234',
   xrpWss: 'wss://s.altnet.rippletest.net:51233',
-  version: '2.3.6_beta',
+  version: '2.4.5_beta',
   appKey: process.env.NODE_ENV === "development" ? '05430510-45ea-4c11-ae70-a1c87a5e3790'
     : '9765ba32-1bec-4c15-9635-6224929f13b8',// XummConsole Dev or Beta
 };

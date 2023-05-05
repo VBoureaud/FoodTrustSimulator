@@ -5,6 +5,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+const randColorPlay = [ '#5e47ff', '#47c3ff', '#78ff47', '#ff9d47', '#ff4747', '#4d47ff', '#f947ff', '#ff4750' ];
+
 type GameAdditionProps = {
 	onVictory?: Function;
 	cost?: string;
@@ -66,7 +69,7 @@ const GameAddition : React.FunctionComponent<GameAdditionProps> = (props) => {
 		<Box sx={{ width: '100%' }}>
 			{step == 0 && 
 				<Box onClick={handleLaunch}>
-					<Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play</Typography>
+					<Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play <PlayCircleFilledWhiteIcon sx={{ ":hover": { color: randColorPlay[random(randColorPlay.length)] }, fontSize: '40px' }} /></Typography>
 					{props.cost && <Typography variant="h6">Cost estimated {props.cost} XRP</Typography>}
 					<Typography sx={{ ml: 1 }} variant="body1"><b>Addition Game</b> - Find the right answer to win{props.tokenName ? ' a ' + props.tokenName : ''}.</Typography>
 				</Box>}

@@ -10,6 +10,10 @@ import abeilleReverseImg from "./assets/images/ABEILLE_40_reverse.png";
 import rucheImg from "./assets/images/RUCHE_50.png";
 import ruche_darkImg from "./assets/images/RUCHE_50_dark.png";
 
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+const randColorPlay = [ '#5e47ff', '#47c3ff', '#78ff47', '#ff9d47', '#ff4747', '#4d47ff', '#f947ff', '#ff4750' ];
+const random = (max: number) => Math.floor(Math.random() * max);
+
 // GameHoney1 by @AdrienB
 // pbm : how to "break" the random loop in the honey generation as soon as a collision is detected in order to optimise if we want higher number of honeycombs.
 //      how can i ensure that they're wont be infinite loops ?
@@ -423,7 +427,7 @@ const GameHoney : React.FunctionComponent<GameHoneyProps> = (props) => {
         <Box sx={{ width: '100%' }}>
             {step == 0 && 
                 <Box onClick={handleLaunch}>
-                    <Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play</Typography>
+                    <Typography variant="h2" sx={{ cursor: 'pointer' }}>Press to play <PlayCircleFilledWhiteIcon sx={{ ":hover": { color: randColorPlay[random(randColorPlay.length)] }, fontSize: '40px' }} /></Typography>
                     {props.cost && <Typography variant="h6">Cost estimated {props.cost} XRP</Typography>}
                     <Typography variant="body1"><b>Honey Game</b> - Click on each bee-free honey to win{props.tokenName ? ' a ' + props.tokenName : ''}.</Typography>
                 </Box>}

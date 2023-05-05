@@ -227,7 +227,21 @@ const CollectionScene: React.FC<Props> = (props) => {
         return (
           <span
             key={index}
+            style={{ position: 'relative' }}
             className="nftsIconSeparator">
+            {isRemote 
+              && uris[index].properties.offerSell.length > 0
+              && <span style={{
+                position: 'absolute',
+                left: '0px',
+                right: '0px',
+                textAlign: 'center',
+                background: '#ff6c24',
+                color: 'white',
+                bottom: '0px',
+                boxShadow: '0px 1px 1px #d0a635',
+                zIndex: 2,
+              }}>Buy now</span>}
             <NftsIcon
               nftTokenName={uris[index] ? uris[index].name : ''}
               user={stateUser.address}
@@ -264,8 +278,11 @@ const CollectionScene: React.FC<Props> = (props) => {
           <HelpOutlineIcon sx={{ cursor: 'pointer', display: 'block', color: "#1936a6" }} />
         </Box>
 
-        {!props.match.params.id && stateUri.uris && stateUser.user && <Typography variant="h2" sx={{ fontWeight: "400" }}>Collection 
-          <span style={{ fontSize: '25px', marginLeft: '15px' }}>{stateUri.uris.filter(e => e.validity && e.properties.owner === stateUser.address).length} / {stateUser.user.pocket}</span></Typography>}
+        {!props.match.params.id && stateUri.uris && stateUser.user && <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Typography variant="h2" sx={{ fontWeight: "400" }}>Collection</Typography>
+            <Typography sx={{ fontSize: '25px', marginLeft: '15px' }}>{stateUri.uris.filter(e => e.validity && e.properties.owner === stateUser.address).length} / {stateUser.user.pocket}</Typography>
+          </Box>
+        }
         {(stateAccount.loadingRemoteTokens || stateAccount.loadingTokens || stateUri.loading)
           && <Box sx={{ p: 1 }}>
           <CircularProgress sx={{ display: 'block', margin: 'auto', color: "black" }} />

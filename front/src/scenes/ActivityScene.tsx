@@ -115,12 +115,12 @@ const gameMapper: GameMapper = {
   '000026': { e: GameTickle, pocketShouldBeAvailable: true },
   '000027': { e: GameConstrain, pocketShouldBeAvailable: true },
   '000028': { e: GameBrightness, pocketShouldBeAvailable: true },
-  '001000': { e: GameBrightness, pocketShouldBeAvailable: true },// recipe
+  '001000': { e: GameBrightness, pocketShouldBeAvailable: true },// recipe cook
   'freeze': { e: GameIceToken, pocketShouldBeAvailable: false },//cook
   'bake': { e: GameHeatToken, pocketShouldBeAvailable: false },//cook
   'mix': { e: GameMixToken, pocketShouldBeAvailable: true },//cook
   'ad': { e: GameAd, pocketShouldBeAvailable: false },//manager
-  '002000': { e: GameTickle, pocketShouldBeAvailable: true },// manager_coin
+  '002000': { e: GameConstrain, pocketShouldBeAvailable: true },// manager_coin
   '002001': { e: GameBoxToken, pocketShouldBeAvailable: false },// manager_box
 };
 

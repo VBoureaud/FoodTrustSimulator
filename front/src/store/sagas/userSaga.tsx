@@ -291,6 +291,8 @@ function* logoutWorker():any {
     yield rmStorage('current_wallet');
     yield rmStorage('current_server');
     yield rmStorage('current_jwt');
+    yield rmStorage('marketPagination');
+    yield rmStorage('marketScroll');
 
     const res = yield* callApi(logoutUser, {
       address: stateUser.user.address,

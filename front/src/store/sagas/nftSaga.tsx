@@ -1,7 +1,6 @@
 import { select, takeLatest, put, all } from "redux-saga/effects";
 import { push } from "react-router-redux";
 import { callApi } from "@utils/helpers";
-import { storageData, getStorage, rmStorage } from "@utils/localStorage";
 import { 
   getOffers,
   getParents,

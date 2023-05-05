@@ -164,6 +164,7 @@ const ProfileScene: React.FC<Props> = () => {
           />
         </Container>}
 
+      {/* Welcome modal */}
       {stateUser.user 
         && stateUser.user.experience === 0 
         && stateUser.user.sessionAction
@@ -177,6 +178,7 @@ const ProfileScene: React.FC<Props> = () => {
             <span style={{ float: 'right', fontStyle: 'italic' }}>Food Trust Simulator Team</span>
           </Typography>}
           autoOpen={true}
+          showClose={true}
           onClose={() => dispatchAddAction({ action: 'closeWelcomePopup' })}
         />}
 

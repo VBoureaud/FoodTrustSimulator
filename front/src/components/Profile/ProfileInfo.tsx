@@ -46,7 +46,7 @@ export const ProfileInfo = (props: ProfileInfoProps) => {
 			<Typography sx={{ mt: 2 }}>{lang['en'].nextLevel}</Typography>
 			<CustomizedProgressBars 
 				progress={doProgress(props.experience)}
-				showValue={props.experience}
+				showValue={calculNextLevel(props.experience) - props.experience}
 			/>
 			<Typography variant="body1" sx={{ textAlign: 'center', mt: 1, fontSize: '15px' }}>
 				{props.experience} / {calculNextLevel(props.experience)}

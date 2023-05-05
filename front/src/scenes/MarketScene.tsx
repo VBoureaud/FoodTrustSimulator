@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { compose } from "redux";
 import { Redirect } from "react-router-dom"; 
@@ -17,6 +17,7 @@ import {
 import { 
   User,
 } from "@store/types/UserTypes";
+import { storageData, getStorage } from "@utils/localStorage";
 
 
 import { AppState } from "@store/types";
@@ -58,13 +59,26 @@ const MarketScene: React.FC<Props> = (props) => {
   const [searchType, setSearchType] = useState('name');
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = React.useState(20);
+  const [pageSize, setPageSize] = React.useState(10);
   const [helpBox, setHelpBox] = useState([]);
+  const refScroll: any = useRef();
 
   // filter on display
   const [coordMap, setCoordMap] = React.useState(null);
   const [zoomMap, setZoomMap] = React.useState(1);
   const [diametreMap, setDiametreMap] = React.useState(300);//radius circle zone
+
+  const handleScroll = useCallback(() => {
+    if (refScroll.current)
+      if (refScroll.current.scrollTop !== undefined)
+        storageData('marketScroll', refScroll.current.scrollTop);
+  }, [])
+
+  // Attach the scroll listener to the div
+  useEffect(() => {
+    if (refScroll.current) refScroll.current.addEventListener("scroll", handleScroll);
+  }, [handleScroll])
+
 
   useEffect(() => {
     if (!stateUser.user || !stateUser.user.name || !stateUser.user.location) {
@@ -72,22 +86,37 @@ const MarketScene: React.FC<Props> = (props) => {
     } else if (!stateUser.users 
       && !stateUser.loadingGetAll
       && !stateUser.errorGetAll) {
-      dispatchGetAllUsers({
-        searchValue: '',
-        server: stateUser.server,
-        usersPage: 1,
-      });
+      handleRefresh();
     }
   });
 
   useEffect(() => {
-    setPage(0);
+    // when page loaded
+    handleRefresh();
+
+    // when exit page _ refresh filter
+    return () => handleRefresh();
+
+  }, []);
+
+  // when done with getAll
+  useEffect(() => {
+    if (!stateUser.loadingGetAll) return ;
+    const savedPagination = getStorage('marketPagination');
+    const savedScroll = getStorage('marketScroll');
+    if (savedPagination !== page) {
+      setPage(savedPagination);
+    }
+    if (refScroll.current) refScroll.current.scrollTo(0, savedScroll);
+  }, [stateUser.loadingGetAll]);
+
+  const handleRefresh = () => {
     dispatchGetAllUsers({
       searchValue: '',
       server: stateUser.server,
       usersPage: 1,
     });
-  }, []);
+  }
 
   const handleProfileCheck = (user: User) => {
     dispatchRemoteUser({ userRemote: user });
@@ -96,8 +125,12 @@ const MarketScene: React.FC<Props> = (props) => {
     props.history.push('/collection/'+ user.address)
   }
 
-  const handlePagination = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePagination = (event: React.ChangeEvent<unknown> | null, value: number) => {
     setPage(value - 1);
+    storageData('marketPagination', value - 1);
+    storageData('marketScroll', 0);
+    if (refScroll.current) refScroll.current.scrollTo(0, 0);
+    window.scrollTo(0, 0);
   };
 
   const handleFilterGeographic = (marker: string[], coord: number[], zoom: number, diametre: number) => {
@@ -165,7 +198,7 @@ const MarketScene: React.FC<Props> = (props) => {
               handleClick={(name: string) => {
                   setSearchType('name');
                   setSearchValue(name);
-                  setPage(0);
+                  handlePagination(null, 1);
                   dispatchGetAllUsers({
                     server: stateUser.server,
                     searchType: 'name',
@@ -215,7 +248,7 @@ const MarketScene: React.FC<Props> = (props) => {
                   onDelete={() => {
                       if (searchValue) {
                         setSearchValue('');
-                        setPage(0);
+                        handlePagination(null, 1);
                         dispatchGetAllUsers({
                           server: stateUser.server,
                           searchType,
@@ -227,7 +260,9 @@ const MarketScene: React.FC<Props> = (props) => {
                   }
                   onChange={(e: string) => {
                       setSearchValue(e);
-                      setPage(0);
+                      if (e)
+                        handlePagination(null, 1);
+                      
                       dispatchGetAllUsers({
                         server: stateUser.server,
                         searchType,
@@ -243,24 +278,37 @@ const MarketScene: React.FC<Props> = (props) => {
         </div>
         {/* List User */}
         <div style={{ minWidth: '300px', flex: 1, background: '#344052', marginTop: '1px' }}>
-          <Typography sx={{ mt: 1, p: '5px 15px' }} variant="h5">Users {stateUser.users && stateUser.users.results && stateUser.users.results.length}</Typography>
-          {stateUser.loadingGetAll && <CircularProgress sx={{ mt: 2, color: "white" }} />}
-          {stateUser.errorGetAll && <Typography sx={{ color: 'tomato', mt: 2 }} variant="h6">Server request fail, please try again later.</Typography>}
+          <Typography sx={{ mt: 1, p: '5px 15px' }} variant="h5">
+            User{stateUser.users && stateUser.users.results && stateUser.users.results.length > 1 ? 's' : ''}
+            <span style={{ marginLeft: '7px' }}>{stateUser.users && stateUser.users.results && stateUser.users.results.length}</span>
+            {stateUser.loadingGetAll && <CircularProgress size={18} sx={{ ml: 1, color: "yellow" }} />}
+          </Typography>
+          {stateUser.errorGetAll && <Typography sx={{ color: 'tomato', mt: 2, p: 1 }} variant="h6">Server request fail, please try again later.</Typography>}
           {stateUser.users && !stateUser.loadingGetAll && !stateUser.errorGetAll && (!stateUser.users.results || !stateUser.users.results.length) &&
             <Container>
-              <Typography sx={{ color: 'white', mt: 2 }} variant="h5">List is empty.</Typography>
+              <Typography sx={{ 
+                color: 'white',
+                mt: 2,
+                background: '#262626',
+                padding: '5px',
+                borderRadius: '5px',
+                textAlign: 'center',
+              }} variant="h5">List is empty.</Typography>
             </Container>}
 
-          <Box sx={{ 
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            flexDirection: 'row',
-            pb: 5,
-            overflow: 'auto',
-            overflowX: 'hidden',
-            maxHeight: 'calc(100vh - 70px)'
-          }}>
+          <Box 
+            ref={refScroll}
+            sx={{ 
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              flexDirection: 'row',
+              pb: 5,
+              overflow: 'auto',
+              overflowX: 'hidden',
+              maxHeight: 'calc(100vh - 180px)'
+            }}
+          >
             {stateUser.users 
               && stateUser.users.results
               && stateUser.users.results/*.filter(elt => elt.address != stateAccount.address)*/
@@ -284,6 +332,7 @@ const MarketScene: React.FC<Props> = (props) => {
           {/* Pagination */}
           {stateUser.users.results && stateUser.users.results.length / pageSize > 1 && <Pagination
             count={Math.ceil(stateUser.users.results.length / pageSize)}
+            page={page + 1}
             sx={{ 
               background: '#202b3c',
               display: 'flex',
@@ -292,6 +341,8 @@ const MarketScene: React.FC<Props> = (props) => {
               borderRadius: '7px',
               maxWidth: '300px',
               margin: 'auto',
+              mt: 1,
+              mb: 1,
             }}
             onChange={handlePagination}
           />}

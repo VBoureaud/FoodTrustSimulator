@@ -128,7 +128,7 @@ const NoLoginContent = (props: NoLoginContentProps) => (
             Register or login to <b>Food Trust Simulator</b> with a valide XRPL address on <b>Testnet</b>.<br />
             Then choose and customize a profile to start playing. Each profile offers different behaviors that you will experience and try to evolve with it, until you better understand the game experience.<br />
             Play to earn NFTs and experiences, but be careful, your profile has a collection limit. Check your collection on the Collection Page.<br />
-            Additionnaly, you will be able to earn experience by completing quests. For this, you will need to find NFTs from other players and trade with them.<br /><br />
+            Additionnaly, you will be able to earn experience by completing quests. For this, you will need to get NFTs from other players by trading with them.<br /><br />
             How scoring works: <br />
               - Play and win a Token: {actionPoints.mintToken}xp<br />
               - Sell a Token: {actionPoints.acceptedOffer}xp<br />

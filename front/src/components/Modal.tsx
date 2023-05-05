@@ -25,6 +25,7 @@ type BasicModalProps = {
   autoOpen: boolean;
   openDelay?: number;
   onClose?: Function;
+  showClose?: boolean;
 }
 
 export default function BasicModal(props: BasicModalProps) {
@@ -58,6 +59,16 @@ export default function BasicModal(props: BasicModalProps) {
       >
         <Box sx={style}>
           {props.children}
+          {props.showClose && <span style={{ 
+            border: '1px solid #cb5847',
+            padding: '5px 10px',
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            borderRadius: '4px',
+            fontSize: '11px',
+            background: '#6b464b',
+          }} onClick={handleClose}>Close</span>}
         </Box>
       </Modal>
     </>

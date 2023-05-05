@@ -264,6 +264,14 @@ const NftScene: React.FC<Props> = (props) => {
 
   }, [offerValue])
 
+  // Update Offer
+  useEffect(() => {
+    if (!stateNft.loadingGetOffers) {
+      const uri = getUriInfo(props.match.params.id);
+      if (uri) setUriInfo(uri);
+    }
+  }, [stateNft.loadingGetOffers]);
+
   // Cancel Offer
   useEffect(() => {
     if (cancelSellOfferIndex || cancelBuyOfferIndex)
@@ -324,7 +332,7 @@ const NftScene: React.FC<Props> = (props) => {
 
   const handleError = () => {
     Store.addNotification({
-      message: 'Request Failed, maybe a problem due to insufficient funds.',
+      message: 'Request Failed: insufficient funds or connection problem.',
       type: "danger",
       insert: "bottom",
       container: "bottom-left",
@@ -429,12 +437,13 @@ const NftScene: React.FC<Props> = (props) => {
   // FormDialog
   const dialogOffer = <span>Enter your offer in XRP</span>;
   const onFormDialogCheckData = (value: string) => {
-    if (isNaN(parseInt(value)) || parseInt(value) <= 0)
+    if (isNaN(parseInt(value)))
       return false;
-    const valueLimited = parseInt(value) + 1;
-    const currentValue = xrpl.xrpToDrops(valueLimited);
+    if (parseFloat(value) < 0.00001)
+      return false;
+    const currentValue = xrpl.xrpToDrops(value);
     const currentBalance = stateAccount.account.account_data.Balance;
-    if (BigInt(currentValue) > BigInt(currentBalance)) return false;
+    if (BigInt(currentValue) >= BigInt(currentBalance)) return false;
     return true;
   }
   const onFormDialogConfirm = (value: string) => {
@@ -701,6 +710,7 @@ const NftScene: React.FC<Props> = (props) => {
                       emptyTitle={'No buy offer'}
                       currentAddr={stateAccount.address}
                       users={stateUser.users && stateUser.users.results}
+                      uriInfo={uriInfo}
                     />}
                 </Box>
               </Paper>}
@@ -727,6 +737,7 @@ const NftScene: React.FC<Props> = (props) => {
                       emptyTitle={'No sell offer'}
                       currentAddr={stateAccount.address}
                       users={stateUser.users && stateUser.users.results}
+                      uriInfo={uriInfo}
                     />}
                 </Box>
               </Paper>}

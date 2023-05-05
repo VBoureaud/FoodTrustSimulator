@@ -232,7 +232,7 @@ export const faqData: {[key: string]: { category: string; content: string; }} = 
     category: 'How to play',
     content: `
       When you create a new account on Food Trust Simulator, you can choose a location that will be the reference point for the tokens you are going to create.<br/>
-      Choose a place by indicating the name of a city.<br/>
+      Choose a place by writing the name of a city.<br/>
       Please note that you will not be able to change it afterwards.<br/>
     `,
   },
@@ -277,7 +277,7 @@ export const faqData: {[key: string]: { category: string; content: string; }} = 
   'Coin': {
     category: 'How to play',
     content: `
-     Coin is a manager's puzzle. Solve a puzzle and create a Coin. One Coin is needed to activate the burnout action.
+     Coin is a manager's puzzle. Solve a puzzle and create a Coin. You can burn a Coin to activate the burnout action.
     `,
   },
   'Ad': {
@@ -307,7 +307,7 @@ export const faqData: {[key: string]: { category: string; content: string; }} = 
   'Longevity': {
     category: 'How to play',
     content: `
-      The longevity is a value that you can find on some NFTs from the game.<br/>
+      The longevity is a value that you can find on some NFTs from the game. It's encoded in the NFT's URI, which means we can never change it or make it opaque thanks to the immutable property of the blockchain.<br/>
       This value adds an expiration date for validating the item during your quest.<br/>
     `,
   },

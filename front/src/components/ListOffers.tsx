@@ -5,9 +5,14 @@ import {
 } from '@store/types/NftTypes';
 
 import { 
+  Uri,
+} from "@store/types/UriTypes";
+
+import { 
 	User
 } from '@store/types/UserTypes';
 
+import { displayDate } from '@utils/helpers';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -33,7 +38,14 @@ type ListOffersProps = {
 	emptyTitle: string;
 	currentAddr: string;
 	users?: User[];
+	uriInfo: Uri;
 };
+
+const getDateFromOffer = (listOfferGameServer: string[], offerOnChain: Offers) => {
+	const offerOnServer = listOfferGameServer.filter((e: string) => e.split('_')[0] === offerOnChain.owner && e.split('_')[1] == offerOnChain.amount);
+	if (!offerOnServer || !offerOnServer[0]) return null;
+	return parseInt(offerOnServer[0].split('_')[2]);
+}
 
 const ListOffers : React.FunctionComponent<ListOffersProps> = (props) => {
 	const getName = (user: User | null, byDefault: string) => user ? user.name : byDefault;
@@ -63,6 +75,16 @@ const ListOffers : React.FunctionComponent<ListOffersProps> = (props) => {
 										{/*<strong>{elt.owner === props.currentAddr ? 'you' : getUserName(elt.owner)}</strong>*/}
 										<strong style={{ fontSize: '18px' }}>{getUserName(elt.owner)}</strong>
 								</Tooltip>
+							</Typography>
+							<Typography style={{ fontSize: '12px', display: 'block' }}>{
+									displayDate(
+										getDateFromOffer([
+											...props.uriInfo.properties.offerBuy,
+											...props.uriInfo.properties.offerSell
+										], elt),
+										true
+									)
+								}
 							</Typography>
 						</ListItemText>
 						{props.canGetOffer && elt.owner != props.currentAddr && <ListItemButton onClick={() => props.handleGetOffer(elt.nft_offer_index)} sx={{ padding: 1, borderRadius: '5px', border: '1px solid grey', justifyContent: 'center' }}>

@@ -273,6 +273,7 @@ const queryUris = async (filter, options) => {
 const patchUri = async (name, updateBody, isSynchronise=false) => {
   const debug = false;
   const decoded = decodeHashURI(xrpl.convertHexToString(name));
+  const now = new Date().getTime();
   let price = null;
 
   // If MetaData exist
@@ -436,9 +437,9 @@ const patchUri = async (name, updateBody, isSynchronise=false) => {
     else if ((!isOfferBuyOnGameServer && !isOfferSellOnGameServer) && isOfferOnXRPL) {
       // add offer
       if (isBuyOffer)
-        metaData.properties.offerBuy.push(updateBody.offer);
+        metaData.properties.offerBuy.push(updateBody.offer + '_' + now);
       else
-        metaData.properties.offerSell.push(updateBody.offer);
+        metaData.properties.offerSell.push(updateBody.offer + '_' + now);
 
       await metaData.save();
       if (isBuyOffer) // contact the owner

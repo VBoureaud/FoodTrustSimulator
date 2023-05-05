@@ -56,11 +56,11 @@ const metaDataSchema = mongoose.Schema(
         unique: true,
       },
       offerBuy: {
-        type: [ String ], // address_price
+        type: [ String ], // address_price_date
         default: [],
       },
       offerSell: {
-        type: [ String ], // address_price
+        type: [ String ], // address_price_date
         default: [],
       },
       parents: { // [ metaData.name, ... ]

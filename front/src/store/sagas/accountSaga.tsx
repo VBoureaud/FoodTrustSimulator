@@ -61,6 +61,8 @@ function* getAccountWorker():any {
     yield rmStorage('current_account');
     yield rmStorage('current_server');
     yield rmStorage('current_jwt');
+    yield rmStorage('marketPagination');
+    yield rmStorage('marketScroll');
     yield put(push('/')); // Redirect Login
   }
 }
@@ -101,6 +103,8 @@ function* refreshWorker():any {
     yield rmStorage('current_account');
     yield rmStorage('current_server');
     yield rmStorage('current_jwt');
+    yield rmStorage('marketPagination');
+    yield rmStorage('marketScroll');
     yield put(push('/')); // Redirect Login
   }
 }
