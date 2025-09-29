@@ -2,7 +2,7 @@
 
 # Food Trust Simulator
 
-A project developed during XRPL Hackathon 2022, which attempts to illustrate the interactions and traceability around the food sphere in a blockchain ecosystem proposed by XRPL.
+A project started during XRPL Hackathon 2022, then funded by XRPL, which attempts to illustrate the interactions and traceability around the food sphere in a blockchain ecosystem proposed by XRPL.
 
 Follow the journey of ingredients from creation to consumers as proof of quality, illustrated with a game. The game popularize supply-chain as well as blockchain concepts through tradeable, earnable
 NFTs obtained by playing mini-games and competition with others players.
